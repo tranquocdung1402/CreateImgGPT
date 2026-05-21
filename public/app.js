@@ -254,9 +254,9 @@ Bố cục tổng thể:
 - Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.
 
 HEADER:
+- Ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
 - Logo công ty đặt ở góc trái header. ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
-- Nếu có ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
 - Ảnh nền header: ${get("headerImage")}
 - Tiêu đề lớn màu vàng: "${get("tourTitle")}"
 - Dòng phụ nhỏ hơn: "${get("tourSubtitle")}"
