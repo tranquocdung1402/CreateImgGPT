@@ -92,11 +92,12 @@ YÊU CẦU GOLF & CHI PHÍ:
 - Yêu cầu gốc của khách: ${get("clientRequest")}
 - Số trận golf: ${get("golfRounds")}
 - Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}
-- Nhóm khách cần tính giá: ${get("groupSizes")}
+- Số lượng khách cần tính giá: ${get("guestCount")} người
 - Quy tắc tính phí và trình bày ngân sách: ${get("costBudgetRules")}
 - Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu "3球", phải có đủ 3 buổi đánh golf.
 - Ngày cuối nếu có yêu cầu "打好球回国" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.
-- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể, ưu tiên bảng so sánh nhóm 4 người và nhóm 8 người.
+- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.
+- Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.
 
 Phong cách thiết kế:
 ${get("style")}
@@ -137,7 +138,7 @@ KHỐI CHI PHÍ / COST BUDGET:
 - Nếu có yêu cầu tính phí, thêm một block riêng nằm sau phần lịch trình và trước khối khách sạn.
 - Tiêu đề gợi ý: "成本预算 | Cost Budget".
 - Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
-- Cột so sánh bắt buộc nếu được yêu cầu: 4人标准 và 8人标准.
+- Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
 - Các con số nếu không được cung cấp giá chính xác phải ghi là ước tính/dự kiến, không trình bày như báo giá cam kết.
 
