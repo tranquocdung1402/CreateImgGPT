@@ -57,6 +57,7 @@ const autoItineraryFields = document.querySelector("#autoItineraryFields");
 const imageItineraryFields = document.querySelector("#imageItineraryFields");
 const scheduleImageField = document.querySelector("#scheduleImageField");
 const scheduleImageInput = document.querySelector("#scheduleImageInput");
+const enableItineraryImages = document.querySelector("#enableItineraryImages");
 const enableGolf = document.querySelector("#enableGolf");
 const enableCost = document.querySelector("#enableCost");
 const golfFields = document.querySelector("#golfFields");
@@ -123,6 +124,10 @@ enableGolf.addEventListener("change", () => {
 
 enableCost.addEventListener("change", () => {
   renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+enableItineraryImages.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
@@ -248,6 +253,7 @@ function buildPrompt() {
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
   const useAutoItinerary = get("itineraryMode") !== "image";
+  const includeItineraryImages = data.get("enableItineraryImages") === "on";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
   const costTable = formatCostItemsForPrompt();
@@ -260,7 +266,7 @@ function buildPrompt() {
     `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
   ].filter(Boolean);
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
-  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf);
+  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf, includeItineraryImages);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
 
   return `${get("role")}
@@ -340,9 +346,10 @@ Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố
 function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost) {
   if (!includeGolf && !includeCost) return "";
 
-  const lines = ["YÊU CẦU GOLF & CHI PHÍ:"];
+  const title = includeGolf && includeCost ? "YÊU CẦU GOLF & CHI PHÍ:" : includeGolf ? "YÊU CẦU GOLF:" : "YÊU CẦU CHI PHÍ:";
+  const lines = [title];
   const clientRequest = get("clientRequest");
-  if (clientRequest) {
+  if (includeGolf && clientRequest) {
     lines.push(`- Yêu cầu gốc của khách: ${clientRequest}`);
   }
 
@@ -371,11 +378,14 @@ function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, tota
   return lines.join("\n");
 }
 
-function buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf) {
+function buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf, includeItineraryImages) {
+  const imageLayout = includeItineraryImages
+    ? "- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày; mỗi ảnh có caption tiếng Trung màu vàng trên banner xanh đen mờ."
+    : "- Không cần lưới ảnh/thumbnail trong từng ngày lịch trình. Ưu tiên timeline chữ rõ ràng, bố cục thoáng và dễ đọc.";
   const sharedLayout = `Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
-- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày.
+${imageLayout}
 - Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}", ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
 
   if (!useAutoItinerary) {
@@ -403,7 +413,7 @@ Yêu cầu nội dung lịch trình:
 - Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
 - Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
 - Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
-- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó.
+${includeItineraryImages ? "- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
