@@ -94,6 +94,7 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
+document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
 downloadButton.addEventListener("click", downloadImage);
 
 function renderItinerarySummary() {
@@ -353,6 +354,118 @@ function downloadImage() {
   link.remove();
 }
 
+function exportExcel() {
+  syncTourTitle();
+  renderItinerarySummary();
+  updateCostTotal();
+  updatePrompt("Đã xuất dữ liệu Excel.");
+
+  const workbook = buildExcelWorkbook();
+  const blob = new Blob([workbook], {
+    type: "application/vnd.ms-excel;charset=utf-8"
+  });
+  const fileName = `tour-itinerary-cost-${new Date().toISOString().slice(0, 10)}.xls`;
+  downloadBlob(blob, fileName);
+}
+
+function buildExcelWorkbook() {
+  const itineraryRows = buildItineraryExcelRows();
+  const costRows = buildCostExcelRows();
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Styles>
+    <Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAD3" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="Title"><Font ss:Bold="1" ss:Size="14"/></Style>
+  </Styles>
+  ${worksheetXml("Lich trinh", itineraryRows)}
+  ${worksheetXml("Chi phi", costRows)}
+</Workbook>`;
+}
+
+function buildItineraryExcelRows() {
+  const data = new FormData(form);
+  const get = (name) => String(data.get(name) || "").trim();
+  const trip = parseDuration(get("duration"));
+  const rows = [
+    [{ value: "LỊCH TRÌNH", style: "Title" }],
+    ["Trường", "Nội dung"],
+    ["Tiêu đề tour", get("tourTitle")],
+    ["Thời lượng", get("duration")],
+    ["Điểm đến", get("destination")],
+    ["Điểm đến chi tiết", get("destinationDetails")],
+    ["Yêu cầu gốc của khách", get("clientRequest")],
+    ["Số trận golf", get("golfRounds")],
+    ["Sân golf / điểm golf", get("golfCourses")],
+    ["Số lượng khách", `${get("guestCount")} người`],
+    [],
+    ["Ngày", "Yêu cầu lịch trình"]
+  ];
+
+  for (let index = 0; index < trip.days; index += 1) {
+    rows.push([
+      `第${index + 1}天`,
+      "Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển."
+    ]);
+  }
+
+  rows.push([], ["Quy tắc tạo lịch trình", get("itineraryRules")]);
+  return rows;
+}
+
+function buildCostExcelRows() {
+  const rows = [
+    [{ value: "CHI PHÍ", style: "Title" }],
+    ["Hạng mục", "Chi tiết", "Chi phí (元 - Tệ)"]
+  ];
+
+  for (const item of getCostItems()) {
+    rows.push([item.item, item.detail, item.cost || "待确认"]);
+  }
+
+  rows.push(["TOTAL / 总计", "", formatCurrency(calculateCostTotal())]);
+  return rows;
+}
+
+function worksheetXml(name, rows) {
+  const tableRows = rows.map((row) => {
+    const cells = row.map((cell) => cellXml(cell)).join("");
+    return `<Row>${cells}</Row>`;
+  }).join("");
+
+  return `<Worksheet ss:Name="${escapeXml(name)}"><Table>${tableRows}</Table></Worksheet>`;
+}
+
+function cellXml(cell) {
+  if (cell === undefined || cell === null) {
+    return "<Cell><Data ss:Type=\"String\"></Data></Cell>";
+  }
+
+  if (typeof cell === "object") {
+    return `<Cell${cell.style ? ` ss:StyleID="${escapeXml(cell.style)}"` : ""}><Data ss:Type="String">${escapeXml(cell.value)}</Data></Cell>`;
+  }
+
+  const value = String(cell);
+  const numeric = value.trim() !== "" && /^-?\d+(\.\d+)?$/.test(value.replace(/,/g, ""));
+  return `<Cell><Data ss:Type="${numeric ? "Number" : "String"}">${escapeXml(numeric ? value.replace(/,/g, "") : value)}</Data></Cell>`;
+}
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 async function copyPrompt() {
   clearTimeout(promptUpdateTimer);
   syncTourTitle();
@@ -446,4 +559,13 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function escapeXml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
