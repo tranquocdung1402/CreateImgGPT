@@ -54,6 +54,9 @@ const destinationInput = form.elements.destination;
 const itineraryMode = document.querySelector("#itineraryMode");
 const autoItineraryFields = document.querySelector("#autoItineraryFields");
 const imageItineraryFields = document.querySelector("#imageItineraryFields");
+const manualItineraryFields = document.querySelector("#manualItineraryFields");
+const manualItinerarySummary = document.querySelector("#manualItinerarySummary");
+const manualDaysContainer = document.querySelector("#manualDays");
 const scheduleImageField = document.querySelector("#scheduleImageField");
 const scheduleImageInput = document.querySelector("#scheduleImageInput");
 const enableItineraryImages = document.querySelector("#enableItineraryImages");
@@ -69,12 +72,14 @@ let promptUpdateTimer;
 
 renderCostItems(defaultCostItems);
 renderItinerarySummary();
+renderManualItinerary();
 renderOptionVisibility();
 promptOutput.value = buildPrompt();
 
 form.addEventListener("input", (event) => {
   if (event.target === durationInput || event.target === destinationInput) {
     renderItinerarySummary();
+    renderManualItinerary();
   }
 
   schedulePromptUpdate();
@@ -89,6 +94,7 @@ document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
   renderCostItems(defaultCostItems);
   renderItinerarySummary();
+  renderManualItinerary({ reset: true });
   scheduleImageName = "";
   renderOptionVisibility();
   logoDataUrl = "";
@@ -107,10 +113,15 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
 document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
+document.querySelector("#syncManualItineraryButton").addEventListener("click", () => {
+  renderManualItinerary();
+  updatePrompt("Đã đồng bộ số ngày lịch trình tự viết.");
+});
 downloadButton.addEventListener("click", downloadImage);
 
 itineraryMode.addEventListener("change", () => {
   renderOptionVisibility();
+  renderManualItinerary();
   updatePrompt("Prompt tự động cập nhật.");
 });
 
@@ -139,9 +150,13 @@ scheduleImageInput.addEventListener("change", (event) => {
 });
 
 function renderOptionVisibility() {
-  const useImageItinerary = itineraryMode.value === "image";
-  autoItineraryFields.classList.toggle("hidden", useImageItinerary);
+  const mode = itineraryMode.value;
+  const useAutoItinerary = mode === "auto";
+  const useImageItinerary = mode === "image";
+  const useManualItinerary = mode === "manual";
+  autoItineraryFields.classList.toggle("hidden", !useAutoItinerary);
   imageItineraryFields.classList.toggle("hidden", !useImageItinerary);
+  manualItineraryFields.classList.toggle("hidden", !useManualItinerary);
   scheduleImageField.classList.toggle("hidden", !useImageItinerary);
 
   golfFields.classList.toggle("hidden", !enableGolf.checked);
@@ -159,6 +174,100 @@ function renderItinerarySummary() {
       <span>${escapeHtml(dayLabels.join(" · "))}</span>
     </div>
   `;
+}
+
+function renderManualItinerary(options = {}) {
+  const trip = parseDuration(durationInput.value);
+  const existingDays = options.reset ? [] : getManualItineraryDays();
+  const days = Array.from({ length: trip.days }, (_, index) => {
+    const existing = existingDays[index];
+    return {
+      day: index + 1,
+      rows: existing?.rows?.length ? existing.rows : defaultManualTimelineRows(index + 1)
+    };
+  });
+
+  manualItinerarySummary.textContent = `${trip.days} ngày / ${trip.nights} đêm - ${days.map((day) => `第${day.day}天`).join(" · ")}`;
+  manualDaysContainer.innerHTML = days.map((day) => manualDayTemplate(day.day, day.rows)).join("");
+}
+
+function defaultManualTimelineRows(day) {
+  if (day === 1) {
+    return [
+      { time: "09:00", activity: "抵达目的地，专车接机。" },
+      { time: "12:00", activity: "享用当地特色午餐。" },
+      { time: "15:00", activity: "办理入住并自由休息。" },
+      { time: "18:30", activity: "享用欢迎晚餐。" }
+    ];
+  }
+
+  return [
+    { time: "08:30", activity: "酒店享用早餐。" },
+    { time: "10:00", activity: "开始当天行程活动。" },
+    { time: "12:30", activity: "享用午餐。" },
+    { time: "18:00", activity: "晚餐后返回酒店休息。" }
+  ];
+}
+
+function manualDayTemplate(day, rows) {
+  return `
+    <div class="manual-day-card" data-day="${day}">
+      <div class="manual-day-title">
+        <h3>第${day}天</h3>
+        <button class="secondary-button compact-button add-manual-row" type="button">+ Thêm mốc giờ</button>
+      </div>
+      <div class="manual-rows">
+        ${rows.map((row) => manualRowTemplate(row)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function manualRowTemplate(row = {}) {
+  return `
+    <div class="manual-row">
+      <input class="manual-time" value="${escapeHtml(row.time || "")}" placeholder="HH:MM" aria-label="Mốc giờ" />
+      <input class="manual-activity" value="${escapeHtml(row.activity || "")}" placeholder="Nhập lịch trình di chuyển / hoạt động" aria-label="Nội dung lịch trình" />
+      <button class="icon-button remove-manual-row" type="button" aria-label="Xóa mốc giờ">-</button>
+    </div>
+  `;
+}
+
+manualDaysContainer.addEventListener("click", (event) => {
+  const addButton = event.target.closest(".add-manual-row");
+  if (addButton) {
+    addButton.closest(".manual-day-card")?.querySelector(".manual-rows")?.insertAdjacentHTML("beforeend", manualRowTemplate());
+    updatePrompt("Đã thêm mốc giờ lịch trình.");
+    return;
+  }
+
+  const removeButton = event.target.closest(".remove-manual-row");
+  if (!removeButton) return;
+
+  const rowsContainer = removeButton.closest(".manual-rows");
+  const row = removeButton.closest(".manual-row");
+  if (!rowsContainer || !row) return;
+
+  if (rowsContainer.querySelectorAll(".manual-row").length <= 1) {
+    row.querySelector(".manual-time").value = "";
+    row.querySelector(".manual-activity").value = "";
+  } else {
+    row.remove();
+  }
+
+  updatePrompt("Đã xóa mốc giờ lịch trình.");
+});
+
+function getManualItineraryDays() {
+  return [...manualDaysContainer.querySelectorAll(".manual-day-card")].map((card, dayIndex) => ({
+    day: Number(card.dataset.day || dayIndex + 1),
+    rows: [...card.querySelectorAll(".manual-row")]
+      .map((row) => ({
+        time: row.querySelector(".manual-time")?.value.trim() || "",
+        activity: row.querySelector(".manual-activity")?.value.trim() || ""
+      }))
+      .filter((row) => row.time || row.activity)
+  }));
 }
 
 function renderCostItems(items) {
@@ -255,7 +364,10 @@ function buildPrompt() {
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
-  const useAutoItinerary = get("itineraryMode") !== "image";
+  const itineraryModeValue = get("itineraryMode") || "auto";
+  const useAutoItinerary = itineraryModeValue === "auto";
+  const useImageItinerary = itineraryModeValue === "image";
+  const useManualItinerary = itineraryModeValue === "manual";
   const includeItineraryImages = data.get("enableItineraryImages") === "on";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
@@ -269,12 +381,14 @@ function buildPrompt() {
   const tasks = [
     useAutoItinerary
       ? `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`
-      : "Đọc ảnh lịch trình tham khảo được cung cấp và chuyển nội dung trong ảnh đó thành phần lịch trình của brochure.",
+      : useImageItinerary
+        ? "Đọc ảnh lịch trình tham khảo được cung cấp và chuyển nội dung trong ảnh đó thành phần lịch trình của brochure."
+        : "Sử dụng lịch trình tự viết tôi đã nhập để tạo phần lịch trình của brochure.",
     includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
     `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
   ].filter(Boolean);
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
-  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf, includeItineraryImages);
+  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
@@ -289,7 +403,8 @@ Ngôn ngữ hiển thị trong ảnh: ${get("imageLanguage")}.
 
 QUY TẮC ƯU TIÊN TÀI LIỆU THAM CHIẾU:
 - Nếu tôi upload ảnh logo, hãy dùng ảnh logo đó làm nguồn duy nhất cho logo. Không tự vẽ lại logo, không đổi màu, không đổi tỷ lệ, không tạo logo mới.
-${useAutoItinerary ? "" : "- Nếu tôi upload ảnh lịch trình, hãy dùng ảnh lịch trình đó làm nguồn chính cho nội dung lịch trình. Không tự lập lịch trình mới và không tự thêm địa điểm không có trong ảnh."}
+${useImageItinerary ? "- Nếu tôi upload ảnh lịch trình, hãy dùng ảnh lịch trình đó làm nguồn chính cho nội dung lịch trình. Không tự lập lịch trình mới và không tự thêm địa điểm không có trong ảnh." : ""}
+${useManualItinerary ? "- Nếu tôi nhập lịch trình tự viết, hãy dùng lịch trình đó làm nguồn chính. Không tự thay đổi thứ tự ngày, mốc giờ hoặc hoạt động chính." : ""}
 
 Nhiệm vụ:
 ${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
@@ -297,11 +412,11 @@ ${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
 Điểm đến chính:
 ${get("destination")}
 
-${useAutoItinerary ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:" : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:"}
+${useAutoItinerary ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:" : useImageItinerary ? "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:" : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ và gợi ý hình minh họa, không được thay đổi lịch trình tự viết:"}
 ${get("destinationDetails")}
 
 Định hướng lịch trình:
-${useAutoItinerary ? get("tourBrief") : "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng."}
+${useAutoItinerary ? get("tourBrief") : useImageItinerary ? "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng." : "Bám theo lịch trình tự viết. Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không tự thay đổi nội dung chính."}
 
 ${golfCostBlock}
 
@@ -392,7 +507,7 @@ function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, tota
   return lines.join("\n");
 }
 
-function buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf, includeItineraryImages) {
+function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages) {
   const imageLayout = includeItineraryImages
     ? "- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày; mỗi ảnh có caption tiếng Trung màu vàng trên banner xanh đen mờ."
     : "- Không cần lưới ảnh/thumbnail trong từng ngày lịch trình. Ưu tiên timeline chữ rõ ràng, bố cục thoáng và dễ đọc.";
@@ -402,7 +517,7 @@ Trong mỗi khối ngày, chia 2 phần:
 ${imageLayout}
 - Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}", ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
 
-  if (!useAutoItinerary) {
+  if (itineraryModeValue === "image") {
     return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
 - Tôi sẽ cung cấp ảnh lịch trình riêng. Ảnh đó là nguồn dữ liệu chính và có ưu tiên cao hơn mọi thông tin điểm đến mặc định trong prompt.
 ${scheduleImageName ? `- Tên file ảnh lịch trình tham khảo: ${scheduleImageName}` : "- Ảnh lịch trình tham khảo sẽ được upload kèm trong GPT."}
@@ -412,6 +527,24 @@ ${scheduleImageName ? `- Tên file ảnh lịch trình tham khảo: ${scheduleIm
 - Nếu có xung đột giữa ảnh lịch trình và các field văn bản trong form, ưu tiên ảnh lịch trình.
 - Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không thay đổi nội dung gốc của lịch trình.
 ${sharedLayout}`;
+  }
+
+  if (itineraryModeValue === "manual") {
+    return `BODY - LỊCH TRÌNH (TỰ VIẾT):
+Chia thành ${trip.days} khối lớn cho từng ngày: ${daySections}.
+${sharedLayout}
+
+Lịch trình tự viết do tôi nhập:
+${formatManualItineraryForPrompt()}
+
+Yêu cầu xử lý lịch trình tự viết:
+- Bắt buộc dùng đúng ${trip.days} ngày theo danh sách trên, không thiếu ngày, không thêm ngày ngoài thời lượng.
+- Giữ đúng thứ tự ngày, mốc giờ và nội dung hoạt động chính tôi đã nhập.
+- Có thể biên tập câu chữ sang tiếng Trung Giản thể cho gọn, sang trọng và dễ đọc, nhưng không tự thay đổi logic di chuyển.
+- Nếu dòng nào chưa có giờ hoặc nội dung, hãy giữ bố cục hợp lý và không tự bịa thêm hoạt động quan trọng.
+${includeItineraryImages ? "- Nếu có ảnh minh họa, chọn thumbnail phù hợp với từng ngày dựa trên địa danh/hoạt động tôi đã nhập." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
+${includeGolf ? "- Nếu là tour golf, giữ đúng các buổi golf đã nhập và ghi rõ sân golf, thời gian tee-off nếu có, ăn uống và di chuyển." : ""}
+- Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
   }
 
   return `BODY - LỊCH TRÌNH:
@@ -430,6 +563,22 @@ Yêu cầu nội dung lịch trình:
 ${includeItineraryImages ? "- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
+}
+
+function formatManualItineraryForPrompt() {
+  const days = getManualItineraryDays();
+  if (days.length === 0 || days.every((day) => day.rows.length === 0)) {
+    return "Chưa nhập lịch trình tự viết.";
+  }
+
+  return days
+    .map((day) => {
+      const rows = day.rows.length
+        ? day.rows.map((row) => `  - ${row.time || "未定时间"} | ${row.activity || "未填写活动内容"}`).join("\n")
+        : "  - Chưa nhập nội dung cho ngày này.";
+      return `第${day.day}天:\n${rows}`;
+    })
+    .join("\n");
 }
 
 function buildCostBudgetPromptBlock(get, totalCost) {
@@ -554,6 +703,7 @@ function buildItineraryExcelRows() {
   const data = new FormData(form);
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
+  const itineraryModeValue = get("itineraryMode") || "auto";
   const includeHotel = data.get("enableHotel") === "on";
   const rows = [
     [{ value: "LỊCH TRÌNH", style: "Title", mergeAcross: 1 }],
@@ -562,6 +712,7 @@ function buildItineraryExcelRows() {
     [labelCell("Thời lượng"), cell(get("duration"))],
     [labelCell("Điểm đến"), cell(get("destination"))],
     [labelCell("Điểm đến chi tiết"), cell(get("destinationDetails"))],
+    [labelCell("Loại lịch trình"), cell(itineraryModeLabel(itineraryModeValue))],
     [labelCell("Yêu cầu gốc của khách"), cell(get("clientRequest"))],
     [labelCell("Số trận golf"), cell(get("golfRounds"))],
     [labelCell("Sân golf / điểm golf"), cell(get("golfCourses"))],
@@ -570,11 +721,26 @@ function buildItineraryExcelRows() {
     [{ value: "Ngày", style: "Header" }, { value: "Yêu cầu lịch trình", style: "Header" }]
   ];
 
-  for (let index = 0; index < trip.days; index += 1) {
+  if (itineraryModeValue === "manual") {
+    for (const day of getManualItineraryDays()) {
+      rows.push([
+        labelCell(`第${day.day}天`),
+        cell(day.rows.map((row) => `${row.time || "未定时间"} | ${row.activity || "未填写活动内容"}`).join("\n") || "Chưa nhập nội dung cho ngày này.")
+      ]);
+    }
+  } else if (itineraryModeValue === "image") {
     rows.push([
-      labelCell(`第${index + 1}天`),
-      cell("Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển.")
+      labelCell("Ảnh lịch trình"),
+      cell(scheduleImageName || "Ảnh lịch trình tham khảo sẽ được upload kèm trong GPT.")
     ]);
+    rows.push([labelCell("Yêu cầu tham khảo ảnh"), cell(get("scheduleImageInstruction"))]);
+  } else {
+    for (let index = 0; index < trip.days; index += 1) {
+      rows.push([
+        labelCell(`第${index + 1}天`),
+        cell("Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển.")
+      ]);
+    }
   }
 
   if (includeHotel) {
@@ -590,6 +756,12 @@ function buildItineraryExcelRows() {
 
   rows.push([], [labelCell("Quy tắc tạo lịch trình"), cell(get("itineraryRules"))]);
   return rows;
+}
+
+function itineraryModeLabel(value) {
+  if (value === "manual") return "Lịch trình tự viết";
+  if (value === "image") return "Tham khảo ảnh lịch trình";
+  return "Lịch trình tự động";
 }
 
 function buildCostExcelRows() {

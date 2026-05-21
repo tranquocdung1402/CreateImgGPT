@@ -46,7 +46,7 @@ body::before {
   background:
     linear-gradient(180deg, rgba(244, 247, 246, 0.82), rgba(244, 247, 246, 0.96)),
     url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=72");
-  background-position: center;
+  background-position: center top;
   background-size: cover;
   opacity: 0.42;
 }
@@ -93,7 +93,7 @@ button:disabled {
 }
 
 .travel-hero {
-  min-height: 220px;
+  min-height: 460px;
   margin-bottom: 18px;
   overflow: hidden;
   position: relative;
@@ -107,8 +107,8 @@ button:disabled {
   background:
     linear-gradient(90deg, rgba(8, 42, 38, 0.84), rgba(8, 42, 38, 0.4) 48%, rgba(8, 42, 38, 0.1)),
     linear-gradient(180deg, rgba(15, 107, 93, 0.08), rgba(200, 155, 60, 0.1)),
-    url("https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1800&q=80");
-  background-position: center;
+    url("img.png");
+  background-position: center top;
   background-size: cover;
   box-shadow: 0 18px 44px rgba(22, 38, 35, 0.14);
 }
@@ -116,12 +116,8 @@ button:disabled {
 .travel-hero::before {
   content: "";
   position: absolute;
-  inset: -18px;
-  background: inherit;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1);
-  animation: heroImageDrift 18s ease-in-out infinite alternate;
+  inset: 0;
+  background: url("img.png") center top / contain no-repeat;
   z-index: 0;
 }
 
@@ -130,8 +126,8 @@ button:disabled {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(8, 42, 38, 0.88), rgba(8, 42, 38, 0.5) 48%, rgba(8, 42, 38, 0.12)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.16));
+    linear-gradient(90deg, rgba(8, 42, 38, 0.78), rgba(8, 42, 38, 0.28) 48%, rgba(8, 42, 38, 0.08)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.2));
   z-index: 1;
 }
 
@@ -383,13 +379,15 @@ textarea:focus {
 }
 
 .days,
-.itinerary-summary {
+.itinerary-summary,
+.manual-days {
   display: grid;
   gap: 14px;
 }
 
 .day-card,
-.summary-card {
+.summary-card,
+.manual-day-card {
   padding: 14px;
   background: var(--panel-strong);
   border: 1px solid var(--line);
@@ -417,6 +415,53 @@ textarea:focus {
   margin: 0 0 12px;
   color: var(--green-dark);
   font-size: 16px;
+}
+
+.manual-itinerary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.manual-itinerary-header h3,
+.manual-itinerary-header p,
+.manual-day-title h3 {
+  margin: 0;
+}
+
+.manual-itinerary-header h3,
+.manual-day-title h3 {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.manual-itinerary-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.manual-day-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.manual-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.manual-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
 }
 
 .cost-builder {
@@ -608,7 +653,7 @@ textarea:focus {
   }
 
   .travel-hero {
-    min-height: 220px;
+    min-height: 360px;
     align-items: flex-start;
     flex-direction: column;
     justify-content: flex-end;
@@ -656,7 +701,8 @@ textarea:focus {
 
   .cost-header,
   .cost-table-head,
-  .cost-row {
+  .cost-row,
+  .manual-row {
     grid-template-columns: 1fr;
   }
 
@@ -670,6 +716,12 @@ textarea:focus {
   }
 
   .copy-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .manual-itinerary-header,
+  .manual-day-title {
     align-items: stretch;
     flex-direction: column;
   }
