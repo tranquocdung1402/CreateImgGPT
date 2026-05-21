@@ -330,11 +330,11 @@ function formatCostItemsForPrompt() {
   }
 
   const rows = items.map((item, index) => {
-    const cost = item.cost ? `${item.cost} 元` : "Chưa nhập chi phí";
+    const cost = item.cost ? `${item.cost} VND` : "Chưa nhập chi phí";
     return `${index + 1}. ${item.item} | ${item.detail} | ${cost}`;
   });
 
-  return ["Hạng mục | Chi tiết | Chi phí (元 - Tệ)", ...rows, `TOTAL | 总计 | ${formatCurrency(calculateCostTotal())}`].join("\n");
+  return ["Hạng mục | Chi tiết | Chi phí (VND)", ...rows, `TOTAL | 总计 | ${formatCurrency(calculateCostTotal())}`].join("\n");
 }
 
 function calculateCostTotal() {
@@ -355,8 +355,8 @@ function parseCostAmount(value) {
 
 function formatCurrency(value) {
   return `${new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2
-  }).format(value)} 元`;
+    maximumFractionDigits: 0
+  }).format(value)} VND`;
 }
 
 function buildPrompt() {
@@ -491,10 +491,10 @@ function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, tota
 
   if (includeCost) {
     lines.push(`- Số lượng khách cần tính giá: ${get("guestCount")} người`);
-    lines.push("- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).");
+    lines.push("- Đơn vị tiền tệ bắt buộc: Việt Nam Đồng (VND / 越南盾).");
     lines.push("- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.");
     lines.push(`- Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.`);
-    lines.push("- Tất cả số tiền trong ảnh bắt buộc dùng tiền Trung Quốc: Nhân dân tệ (CNY / RMB / 人民币 / 元).");
+    lines.push("- Tất cả số tiền trong ảnh bắt buộc dùng Việt Nam Đồng, ký hiệu VND. Không dùng Nhân dân tệ, CNY, RMB, 人民币 hoặc 元.");
     lines.push("- Không tự nghĩ giá, không tự báo giá, không tự ước tính chi phí. Chỉ sử dụng các hạng mục và chi phí tôi đã nhập trong bảng dưới đây.");
     lines.push("");
     lines.push("Bảng chi phí do tôi nhập:");
@@ -588,7 +588,8 @@ function buildCostBudgetPromptBlock(get, totalCost) {
 - Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
 - Font chữ trong bảng chi phí phải theo cấu hình "${get("costFontSize")}", số tiền và TOTAL phải lớn hơn hoặc đậm hơn nội dung thường.
 - Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
-- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
+- Đơn vị tiền tệ bắt buộc: Việt Nam Đồng (VND / 越南盾).
+- Không dùng Nhân dân tệ, CNY, RMB, 人民币 hoặc 元 trong bảng chi phí.
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
 - Chỉ hiển thị đúng hạng mục, chi tiết và chi phí từ "Bảng chi phí do tôi nhập".
 - Nếu hạng mục nào chưa nhập chi phí, hiển thị "待确认" thay vì tự tạo số tiền.
@@ -770,7 +771,7 @@ function buildCostExcelRows() {
     [
       { value: "Hạng mục", style: "Header" },
       { value: "Chi tiết", style: "Header" },
-      { value: "Chi phí (元 - Tệ)", style: "Header" }
+      { value: "Chi phí (VND)", style: "Header" }
     ]
   ];
 
