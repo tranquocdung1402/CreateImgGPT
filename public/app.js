@@ -251,6 +251,10 @@ function buildPrompt() {
   const includeItineraryImages = data.get("enableItineraryImages") === "on";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
+  const titleHint = get("tourTitle");
+  const subtitleHint = get("tourSubtitle");
+  const titleHintLine = titleHint ? `- Gợi ý title nếu phù hợp: "${titleHint}"` : "- Không có gợi ý title cố định; tự tạo title tiếng Trung mới theo nội dung lịch trình.";
+  const subtitleHintLine = subtitleHint ? `- Gợi ý subtitle nếu phù hợp: "${subtitleHint}"` : "- Không có gợi ý subtitle cố định; tự tạo subtitle tiếng Trung mới theo nội dung lịch trình.";
   const costTable = formatCostItemsForPrompt();
   const totalCost = formatCurrency(calculateCostTotal());
   const tasks = [
@@ -303,12 +307,12 @@ HEADER:
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${get("headerImage")}
 - Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung lịch trình thực tế.
-- Gợi ý title nếu phù hợp: "${get("tourTitle")}"
+${titleHintLine}
 - Nếu lịch trình có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
 - Nếu lịch trình không có golf, title phải nhấn mạnh chủ đề chính của lịch trình như nghỉ dưỡng biển, văn hóa, gia đình, luxury resort hoặc khám phá.
 - Không dùng title chung chung kiểu "5天4晚轻奢度假行程" nếu lịch trình có chủ đề rõ ràng.
 - Tự tạo dòng phụ nhỏ hơn bằng tiếng Trung, ngắn gọn, giàu cảm xúc, bám nội dung lịch trình.
-- Gợi ý subtitle nếu phù hợp: "${get("tourSubtitle")}"
+${subtitleHintLine}
 
 ${itineraryBlock}
 
