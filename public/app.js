@@ -208,26 +208,64 @@ function downloadImage() {
 }
 
 async function copyPrompt() {
-  const prompt = promptOutput.value.trim() || buildPrompt();
+  const prompt = normalizePromptText(promptOutput.value || buildPrompt());
   promptOutput.value = prompt;
 
   try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(prompt);
-    } else {
-      promptOutput.focus();
-      promptOutput.select();
-      document.execCommand("copy");
-      promptOutput.setSelectionRange(prompt.length, prompt.length);
-    }
+    await copyPlainText(prompt);
     showCopyNotice("Đã copy prompt");
-    setStatus("Đã copy prompt.");
+    setStatus("Đã copy prompt dạng text, có thể paste vào GPT.");
   } catch {
-    promptOutput.focus();
-    promptOutput.select();
+    selectPromptText();
     showCopyNotice("Hãy copy thủ công");
     setStatus("Không copy tự động được. Prompt đã được bôi đen để bạn copy.", true);
   }
+}
+
+async function copyPlainText(text) {
+  if (navigator.clipboard?.write && window.ClipboardItem) {
+    const blob = new Blob([text], { type: "text/plain" });
+    await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+    return;
+  }
+
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const helper = document.createElement("textarea");
+  helper.value = text;
+  helper.setAttribute("readonly", "");
+  helper.style.position = "fixed";
+  helper.style.inset = "0 auto auto 0";
+  helper.style.width = "1px";
+  helper.style.height = "1px";
+  helper.style.opacity = "0";
+  document.body.append(helper);
+  helper.focus();
+  helper.select();
+
+  const copied = document.execCommand("copy");
+  helper.remove();
+
+  if (!copied) {
+    throw new Error("Copy command failed.");
+  }
+}
+
+function normalizePromptText(text) {
+  return String(text)
+    .replace(/\r\n?/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function selectPromptText() {
+  promptOutput.focus();
+  promptOutput.select();
+  promptOutput.setSelectionRange(0, promptOutput.value.length);
 }
 
 function showCopyNotice(message) {
