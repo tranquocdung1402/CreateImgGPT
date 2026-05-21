@@ -315,7 +315,10 @@ FOOTER:
 YÊU CẦU KỸ THUẬT:
 ${get("technicalRequirements")}
 
-Hãy tạo ảnh hoàn chỉnh, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+IMAGE QUALITY KEYWORDS:
+${get("imageQuality")}
+
+Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
 }
 
 function schedulePromptUpdate() {
