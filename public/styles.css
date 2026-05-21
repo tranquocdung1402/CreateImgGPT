@@ -299,6 +299,29 @@ textarea:focus {
   gap: 10px;
 }
 
+.cost-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #102f2b;
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.cost-total span {
+  color: var(--gold-soft);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cost-total strong {
+  color: #ffffff;
+  font-size: 18px;
+}
+
 .cost-row {
   padding: 10px;
   background: var(--panel-strong);

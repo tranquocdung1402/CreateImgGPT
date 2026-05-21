@@ -42,6 +42,7 @@ const defaultCostItems = [
 const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
 const costItemsContainer = document.querySelector("#costItems");
+const costTotal = document.querySelector("#costTotal");
 const promptOutput = document.querySelector("#promptOutput");
 const statusText = document.querySelector("#statusText");
 const imagePreview = document.querySelector("#imagePreview");
@@ -108,6 +109,7 @@ function renderItinerarySummary() {
 
 function renderCostItems(items) {
   costItemsContainer.innerHTML = items.map((item) => costRowTemplate(item)).join("");
+  updateCostTotal();
 }
 
 function costRowTemplate(item) {
@@ -130,10 +132,12 @@ function addCostItem() {
       cost: ""
     })
   );
+  updateCostTotal();
   updatePrompt("Đã thêm hạng mục chi phí.");
 }
 
 costItemsContainer.addEventListener("input", () => {
+  updateCostTotal();
   schedulePromptUpdate();
 });
 
@@ -142,6 +146,7 @@ costItemsContainer.addEventListener("click", (event) => {
   if (!button) return;
 
   button.closest(".cost-row")?.remove();
+  updateCostTotal();
   updatePrompt("Đã xóa hạng mục chi phí.");
 });
 
@@ -166,7 +171,29 @@ function formatCostItemsForPrompt() {
     return `${index + 1}. ${item.item} | ${item.detail} | ${cost}`;
   });
 
-  return ["Hạng mục | Chi tiết | Chi phí (元 - Tệ)", ...rows].join("\n");
+  return ["Hạng mục | Chi tiết | Chi phí (元 - Tệ)", ...rows, `TOTAL | 总计 | ${formatCurrency(calculateCostTotal())}`].join("\n");
+}
+
+function calculateCostTotal() {
+  return getCostItems().reduce((sum, item) => sum + parseCostAmount(item.cost), 0);
+}
+
+function updateCostTotal() {
+  costTotal.textContent = formatCurrency(calculateCostTotal());
+}
+
+function parseCostAmount(value) {
+  const normalized = String(value || "")
+    .replace(/,/g, "")
+    .replace(/[^\d.-]/g, "");
+  const amount = Number.parseFloat(normalized);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function formatCurrency(value) {
+  return `${new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2
+  }).format(value)} 元`;
 }
 
 function buildPrompt() {
@@ -175,6 +202,7 @@ function buildPrompt() {
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
   const costTable = formatCostItemsForPrompt();
+  const totalCost = formatCurrency(calculateCostTotal());
 
   return `${get("role")}
 
@@ -209,6 +237,9 @@ YÊU CẦU GOLF & CHI PHÍ:
 
 Bảng chi phí do tôi nhập:
 ${costTable}
+
+Tổng chi phí tự động:
+${totalCost}
 
 Phong cách thiết kế:
 ${get("style")}
@@ -254,6 +285,8 @@ KHỐI CHI PHÍ / COST BUDGET:
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
 - Chỉ hiển thị đúng hạng mục, chi tiết và chi phí từ "Bảng chi phí do tôi nhập".
 - Nếu hạng mục nào chưa nhập chi phí, hiển thị "待确认" thay vì tự tạo số tiền.
+- Bắt buộc có dòng "TOTAL / 总计" ở cuối bảng chi phí, giá trị là ${totalCost}.
+- Không thêm dòng ghi chú/备注 kiểu "以上费用以客户提供信息为准" hoặc các ghi chú báo giá khác.
 
 KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
