@@ -51,7 +51,6 @@ const downloadButton = document.querySelector("#downloadButton");
 const copyNotice = document.querySelector("#copyNotice");
 const durationInput = form.elements.duration;
 const destinationInput = form.elements.destination;
-const tourTitleInput = form.elements.tourTitle;
 const itineraryMode = document.querySelector("#itineraryMode");
 const autoItineraryFields = document.querySelector("#autoItineraryFields");
 const imageItineraryFields = document.querySelector("#imageItineraryFields");
@@ -67,14 +66,12 @@ let copyNoticeTimer;
 let promptUpdateTimer;
 
 renderCostItems(defaultCostItems);
-syncTourTitle();
 renderItinerarySummary();
 renderOptionVisibility();
 promptOutput.value = buildPrompt();
 
 form.addEventListener("input", (event) => {
   if (event.target === durationInput || event.target === destinationInput) {
-    syncTourTitle();
     renderItinerarySummary();
   }
 
@@ -82,7 +79,6 @@ form.addEventListener("input", (event) => {
 });
 
 document.querySelector("#generatePromptButton").addEventListener("click", () => {
-  syncTourTitle();
   renderItinerarySummary();
   updatePrompt("Prompt đã được cập nhật.");
 });
@@ -90,7 +86,6 @@ document.querySelector("#generatePromptButton").addEventListener("click", () => 
 document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
   renderCostItems(defaultCostItems);
-  syncTourTitle();
   renderItinerarySummary();
   scheduleImageName = "";
   renderOptionVisibility();
@@ -307,8 +302,13 @@ HEADER:
 - ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${get("headerImage")}
-- Tiêu đề lớn màu vàng: "${get("tourTitle")}"
-- Dòng phụ nhỏ hơn: "${get("tourSubtitle")}"
+- Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung lịch trình thực tế.
+- Gợi ý title nếu phù hợp: "${get("tourTitle")}"
+- Nếu lịch trình có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
+- Nếu lịch trình không có golf, title phải nhấn mạnh chủ đề chính của lịch trình như nghỉ dưỡng biển, văn hóa, gia đình, luxury resort hoặc khám phá.
+- Không dùng title chung chung kiểu "5天4晚轻奢度假行程" nếu lịch trình có chủ đề rõ ràng.
+- Tự tạo dòng phụ nhỏ hơn bằng tiếng Trung, ngắn gọn, giàu cảm xúc, bám nội dung lịch trình.
+- Gợi ý subtitle nếu phù hợp: "${get("tourSubtitle")}"
 
 ${itineraryBlock}
 
@@ -445,11 +445,6 @@ function updatePrompt(message) {
   if (message) setStatus(message);
 }
 
-function syncTourTitle() {
-  const trip = parseDuration(durationInput.value);
-  tourTitleInput.value = `${trip.days}天${trip.nights}晚轻奢度假行程`;
-}
-
 function parseDuration(value) {
   const normalized = String(value || "");
   const numbers = normalized.match(/\d+/g)?.map(Number) || [];
@@ -474,7 +469,6 @@ function downloadImage() {
 }
 
 function exportExcel() {
-  syncTourTitle();
   renderItinerarySummary();
   updateCostTotal();
   updatePrompt("Đã xuất dữ liệu Excel.");
@@ -549,7 +543,7 @@ function buildItineraryExcelRows() {
   const rows = [
     [{ value: "LỊCH TRÌNH", style: "Title", mergeAcross: 1 }],
     [{ value: "Trường", style: "Header" }, { value: "Nội dung", style: "Header" }],
-    [labelCell("Tiêu đề tour"), cell(get("tourTitle"))],
+    [labelCell("Gợi ý title"), cell(get("tourTitle"))],
     [labelCell("Thời lượng"), cell(get("duration"))],
     [labelCell("Điểm đến"), cell(get("destination"))],
     [labelCell("Điểm đến chi tiết"), cell(get("destinationDetails"))],
@@ -668,7 +662,6 @@ function downloadBlob(blob, fileName) {
 
 async function copyPrompt() {
   clearTimeout(promptUpdateTimer);
-  syncTourTitle();
   renderItinerarySummary();
   updateCostTotal();
   const prompt = normalizePromptText(buildPrompt());
