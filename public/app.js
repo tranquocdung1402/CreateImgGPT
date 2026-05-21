@@ -253,7 +253,9 @@ function buildPrompt() {
   const costTable = formatCostItemsForPrompt();
   const totalCost = formatCurrency(calculateCostTotal());
   const tasks = [
-    `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`,
+    useAutoItinerary
+      ? `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`
+      : "Đọc ảnh lịch trình tham khảo được cung cấp và chuyển nội dung trong ảnh đó thành phần lịch trình của brochure.",
     includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
     `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
   ].filter(Boolean);
@@ -265,17 +267,21 @@ function buildPrompt() {
 
 Ngôn ngữ hiển thị trong ảnh: ${get("imageLanguage")}.
 
+QUY TẮC ƯU TIÊN TÀI LIỆU THAM CHIẾU:
+- Nếu tôi upload ảnh logo, hãy dùng ảnh logo đó làm nguồn duy nhất cho logo. Không tự vẽ lại logo, không đổi màu, không đổi tỷ lệ, không tạo logo mới.
+${useAutoItinerary ? "" : "- Nếu tôi upload ảnh lịch trình, hãy dùng ảnh lịch trình đó làm nguồn chính cho nội dung lịch trình. Không tự lập lịch trình mới và không tự thêm địa điểm không có trong ảnh."}
+
 Nhiệm vụ:
 ${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
 
 Điểm đến chính:
 ${get("destination")}
 
-Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:
+${useAutoItinerary ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:" : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:"}
 ${get("destinationDetails")}
 
 Định hướng lịch trình:
-${get("tourBrief")}
+${useAutoItinerary ? get("tourBrief") : "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng."}
 
 ${golfCostBlock}
 
@@ -291,8 +297,9 @@ Bố cục tổng thể:
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
-- Ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
-- Logo công ty đặt ở góc trái header. ${get("logoRequirements")}
+- LOGO REFERENCE IS STRICT: nếu có ảnh logo được upload, phải đặt chính logo đó ở góc trái Header, giữ nguyên hình dáng, tỷ lệ, màu vàng, chi tiết và phong cách của ảnh tham chiếu.
+- Không tự vẽ lại logo, không tái thiết kế logo, không đổi chữ trong logo, không thêm hiệu ứng làm sai logo, không dùng logo giả.
+- ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${get("headerImage")}
 - Tiêu đề lớn màu vàng: "${get("tourTitle")}"
@@ -374,11 +381,13 @@ Trong mỗi khối ngày, chia 2 phần:
 
   if (!useAutoItinerary) {
     return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
-- Tôi sẽ cung cấp ảnh lịch trình riêng để bạn tham khảo khi tạo ảnh.
+- Tôi sẽ cung cấp ảnh lịch trình riêng. Ảnh đó là nguồn dữ liệu chính và có ưu tiên cao hơn mọi thông tin điểm đến mặc định trong prompt.
 ${scheduleImageName ? `- Tên file ảnh lịch trình tham khảo: ${scheduleImageName}` : "- Ảnh lịch trình tham khảo sẽ được upload kèm trong GPT."}
 - ${get("scheduleImageInstruction")}
-- Dựa vào ảnh lịch trình tham khảo để xác định số ngày, thứ tự ngày, điểm đến, hoạt động, thời gian và nội dung quan trọng.
-- Không tự thay đổi logic lịch trình trong ảnh nếu ảnh đã có nội dung rõ ràng; chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa.
+- Dựa vào ảnh lịch trình tham khảo để xác định chính xác số ngày, thứ tự ngày, điểm đến, hoạt động, thời gian, khách sạn, golf/chi phí nếu có và nội dung quan trọng.
+- Không tự thay đổi logic lịch trình trong ảnh. Không tự thêm Bà Nà/Hội An/Đà Nẵng hoặc bất kỳ địa danh nào nếu ảnh lịch trình không có.
+- Nếu có xung đột giữa ảnh lịch trình và các field văn bản trong form, ưu tiên ảnh lịch trình.
+- Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không thay đổi nội dung gốc của lịch trình.
 ${sharedLayout}`;
   }
 
