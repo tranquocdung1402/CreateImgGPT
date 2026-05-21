@@ -138,7 +138,7 @@ function addCostItem() {
 
 costItemsContainer.addEventListener("input", () => {
   updateCostTotal();
-  schedulePromptUpdate();
+  updatePrompt("Prompt tự động cập nhật.");
 });
 
 costItemsContainer.addEventListener("click", (event) => {
@@ -354,7 +354,11 @@ function downloadImage() {
 }
 
 async function copyPrompt() {
-  const prompt = normalizePromptText(promptOutput.value || buildPrompt());
+  clearTimeout(promptUpdateTimer);
+  syncTourTitle();
+  renderItinerarySummary();
+  updateCostTotal();
+  const prompt = normalizePromptText(buildPrompt());
   promptOutput.value = prompt;
 
   try {
