@@ -255,6 +255,8 @@ Bố cục tổng thể:
 
 HEADER:
 - Logo công ty đặt ở góc trái header. ${get("logoRequirements")}
+- Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
+- Nếu có ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
 - Ảnh nền header: ${get("headerImage")}
 - Tiêu đề lớn màu vàng: "${get("tourTitle")}"
 - Dòng phụ nhỏ hơn: "${get("tourSubtitle")}"
@@ -311,6 +313,7 @@ FOOTER:
 - Ở giữa: icon điện thoại + "咨询热线: ${get("hotline")}".
 - Ở giữa: icon địa điểm + "公司地址: ${get("address")}".
 - Bên phải: slogan thư pháp tiếng Trung "${get("slogan")}".
+- Footer chỉ có chữ, icon điện thoại và icon địa điểm như mô tả; tuyệt đối không đặt logo công ty, không dùng biểu tượng logo, không lặp lại hình ảnh logo ở Footer.
 
 YÊU CẦU KỸ THUẬT:
 ${get("technicalRequirements")}
