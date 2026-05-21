@@ -59,9 +59,11 @@ const scheduleImageInput = document.querySelector("#scheduleImageInput");
 const enableItineraryImages = document.querySelector("#enableItineraryImages");
 const enableGolf = document.querySelector("#enableGolf");
 const enableCost = document.querySelector("#enableCost");
+const enableHotel = document.querySelector("#enableHotel");
 const golfFields = document.querySelector("#golfFields");
 const costMetaFields = document.querySelector("#costMetaFields");
 const costFields = document.querySelector("#costFields");
+const hotelFields = document.querySelector("#hotelFields");
 let copyNoticeTimer;
 let promptUpdateTimer;
 
@@ -126,6 +128,11 @@ enableItineraryImages.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
+enableHotel.addEventListener("change", () => {
+  renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
 scheduleImageInput.addEventListener("change", (event) => {
   scheduleImageName = event.target.files?.[0]?.name || "";
   updatePrompt(scheduleImageName ? "Đã nạp tên ảnh lịch trình tham khảo." : "Prompt tự động cập nhật.");
@@ -140,6 +147,7 @@ function renderOptionVisibility() {
   golfFields.classList.toggle("hidden", !enableGolf.checked);
   costMetaFields.classList.toggle("hidden", !enableCost.checked);
   costFields.classList.toggle("hidden", !enableCost.checked);
+  hotelFields.classList.toggle("hidden", !enableHotel.checked);
 }
 
 function renderItinerarySummary() {
@@ -251,6 +259,7 @@ function buildPrompt() {
   const includeItineraryImages = data.get("enableItineraryImages") === "on";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
+  const includeHotel = data.get("enableHotel") === "on";
   const titleHint = get("tourTitle");
   const subtitleHint = get("tourSubtitle");
   const titleHintLine = titleHint ? `- Gợi ý title nếu phù hợp: "${titleHint}"` : "- Không có gợi ý title cố định; tự tạo title tiếng Trung mới theo nội dung lịch trình.";
@@ -267,6 +276,12 @@ function buildPrompt() {
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
   const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf, includeItineraryImages);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
+  const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
+- Vị trí: gần cuối body.
+- Tiêu đề: "${get("hotelTitle")}"
+- Tên khách sạn nổi bật: "${get("hotelName")}"
+- Hình ảnh minh họa: ${get("hotelImages")}
+- Tiện ích kèm icon nhỏ: ${get("hotelAmenities")}` : "";
 
   return `${get("role")}
 
@@ -318,12 +333,7 @@ ${itineraryBlock}
 
 ${costBudgetBlock}
 
-KHỐI KHÁCH SẠN:
-- Vị trí: gần cuối body.
-- Tiêu đề: "${get("hotelTitle")}"
-- Tên khách sạn nổi bật: "${get("hotelName")}"
-- Hình ảnh minh họa: ${get("hotelImages")}
-- Tiện ích kèm icon nhỏ: ${get("hotelAmenities")}
+${hotelBlock}
 
 KHỐI DỊCH VỤ ĐƯA ĐÓN VIP:
 - Vị trí: cuối body, ngay phía trên footer.
@@ -544,6 +554,7 @@ function buildItineraryExcelRows() {
   const data = new FormData(form);
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
+  const includeHotel = data.get("enableHotel") === "on";
   const rows = [
     [{ value: "LỊCH TRÌNH", style: "Title", mergeAcross: 1 }],
     [{ value: "Trường", style: "Header" }, { value: "Nội dung", style: "Header" }],
@@ -564,6 +575,17 @@ function buildItineraryExcelRows() {
       labelCell(`第${index + 1}天`),
       cell("Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển.")
     ]);
+  }
+
+  if (includeHotel) {
+    rows.push(
+      [],
+      [{ value: "KHÁCH SẠN", style: "Header" }, { value: "Nội dung", style: "Header" }],
+      [labelCell("Tiêu đề block"), cell(get("hotelTitle"))],
+      [labelCell("Tên khách sạn"), cell(get("hotelName"))],
+      [labelCell("Hình ảnh khách sạn"), cell(get("hotelImages"))],
+      [labelCell("Tiện ích"), cell(get("hotelAmenities"))]
+    );
   }
 
   rows.push([], [labelCell("Quy tắc tạo lịch trình"), cell(get("itineraryRules"))]);
