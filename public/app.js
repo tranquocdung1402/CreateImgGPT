@@ -1,5 +1,6 @@
 let logoDataUrl = "";
 let currentImageDataUrl = "";
+let scheduleImageName = "";
 
 const defaultCostItems = [
   {
@@ -51,12 +52,23 @@ const copyNotice = document.querySelector("#copyNotice");
 const durationInput = form.elements.duration;
 const destinationInput = form.elements.destination;
 const tourTitleInput = form.elements.tourTitle;
+const itineraryMode = document.querySelector("#itineraryMode");
+const autoItineraryFields = document.querySelector("#autoItineraryFields");
+const imageItineraryFields = document.querySelector("#imageItineraryFields");
+const scheduleImageField = document.querySelector("#scheduleImageField");
+const scheduleImageInput = document.querySelector("#scheduleImageInput");
+const enableGolf = document.querySelector("#enableGolf");
+const enableCost = document.querySelector("#enableCost");
+const golfFields = document.querySelector("#golfFields");
+const costMetaFields = document.querySelector("#costMetaFields");
+const costFields = document.querySelector("#costFields");
 let copyNoticeTimer;
 let promptUpdateTimer;
 
 renderCostItems(defaultCostItems);
 syncTourTitle();
 renderItinerarySummary();
+renderOptionVisibility();
 promptOutput.value = buildPrompt();
 
 form.addEventListener("input", (event) => {
@@ -79,6 +91,8 @@ document.querySelector("#resetButton").addEventListener("click", () => {
   renderCostItems(defaultCostItems);
   syncTourTitle();
   renderItinerarySummary();
+  scheduleImageName = "";
+  renderOptionVisibility();
   logoDataUrl = "";
   currentImageDataUrl = "";
   updatePrompt("Đã reset form.");
@@ -96,6 +110,37 @@ document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
 document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
 downloadButton.addEventListener("click", downloadImage);
+
+itineraryMode.addEventListener("change", () => {
+  renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+enableGolf.addEventListener("change", () => {
+  renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+enableCost.addEventListener("change", () => {
+  renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+scheduleImageInput.addEventListener("change", (event) => {
+  scheduleImageName = event.target.files?.[0]?.name || "";
+  updatePrompt(scheduleImageName ? "Đã nạp tên ảnh lịch trình tham khảo." : "Prompt tự động cập nhật.");
+});
+
+function renderOptionVisibility() {
+  const useImageItinerary = itineraryMode.value === "image";
+  autoItineraryFields.classList.toggle("hidden", useImageItinerary);
+  imageItineraryFields.classList.toggle("hidden", !useImageItinerary);
+  scheduleImageField.classList.toggle("hidden", !useImageItinerary);
+
+  golfFields.classList.toggle("hidden", !enableGolf.checked);
+  costMetaFields.classList.toggle("hidden", !enableCost.checked);
+  costFields.classList.toggle("hidden", !enableCost.checked);
+}
 
 function renderItinerarySummary() {
   const trip = parseDuration(durationInput.value);
@@ -202,17 +247,26 @@ function buildPrompt() {
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
+  const useAutoItinerary = get("itineraryMode") !== "image";
+  const includeGolf = data.get("enableGolf") === "on";
+  const includeCost = data.get("enableCost") === "on";
   const costTable = formatCostItemsForPrompt();
   const totalCost = formatCurrency(calculateCostTotal());
+  const tasks = [
+    `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`,
+    includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
+    `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
+  ].filter(Boolean);
+  const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
+  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf);
+  const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
 
   return `${get("role")}
 
 Ngôn ngữ hiển thị trong ảnh: ${get("imageLanguage")}.
 
 Nhiệm vụ:
-1. Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.
-2. Nếu có yêu cầu golf/chi phí, tích hợp đầy đủ vào lịch trình và bố cục ảnh.
-3. Từ lịch trình đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.
+${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
 
 Điểm đến chính:
 ${get("destination")}
@@ -223,24 +277,7 @@ ${get("destinationDetails")}
 Định hướng lịch trình:
 ${get("tourBrief")}
 
-YÊU CẦU GOLF & CHI PHÍ:
-- Yêu cầu gốc của khách: ${get("clientRequest")}
-- Số trận golf: ${get("golfRounds")}
-- Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}
-- Số lượng khách cần tính giá: ${get("guestCount")} người
-- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
-- Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu "3球", phải có đủ 3 buổi đánh golf.
-- Ngày cuối nếu có yêu cầu "打好球回国" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.
-- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.
-- Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.
-- Tất cả số tiền trong ảnh bắt buộc dùng tiền Trung Quốc: Nhân dân tệ (CNY / RMB / 人民币 / 元).
-- Không tự nghĩ giá, không tự báo giá, không tự ước tính chi phí. Chỉ sử dụng các hạng mục và chi phí tôi đã nhập trong bảng dưới đây.
-
-Bảng chi phí do tôi nhập:
-${costTable}
-
-Tổng chi phí tự động:
-${totalCost}
+${golfCostBlock}
 
 Phong cách thiết kế:
 ${get("style")}
@@ -251,7 +288,7 @@ Bố cục tổng thể:
 - Màu chủ đạo xanh sang trọng, gold, trắng và các màu sáng chuyên nghiệp.
 - Không dùng tông tối làm chủ đạo.
 - Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Không dùng chữ quá nhỏ; timeline, giờ, hoạt động và caption phải đọc rõ trên ảnh dọc.
-- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.
+${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
 - Ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
@@ -261,39 +298,9 @@ HEADER:
 - Tiêu đề lớn màu vàng: "${get("tourTitle")}"
 - Dòng phụ nhỏ hơn: "${get("tourSubtitle")}"
 
-BODY - LỊCH TRÌNH:
-Chia thành ${trip.days} khối lớn cho từng ngày: ${daySections}.
-Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
-Trong mỗi khối ngày, chia 2 phần:
-- Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
-- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày.
-- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}", ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.
+${itineraryBlock}
 
-Quy tắc tự động lập lịch trình:
-${get("itineraryRules")}
-
-Yêu cầu nội dung lịch trình:
-- Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
-- Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày.
-- Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
-- Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
-- Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
-- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó.
-- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển.
-- Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.
-
-KHỐI CHI PHÍ / COST BUDGET:
-- Nếu có yêu cầu tính phí, thêm một block riêng nằm sau phần lịch trình và trước khối khách sạn.
-- Tiêu đề gợi ý: "成本预算 | Cost Budget".
-- Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
-- Font chữ trong bảng chi phí phải theo cấu hình "${get("costFontSize")}", số tiền và TOTAL phải lớn hơn hoặc đậm hơn nội dung thường.
-- Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
-- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
-- Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
-- Chỉ hiển thị đúng hạng mục, chi tiết và chi phí từ "Bảng chi phí do tôi nhập".
-- Nếu hạng mục nào chưa nhập chi phí, hiển thị "待确认" thay vì tự tạo số tiền.
-- Bắt buộc có dòng "TOTAL / 总计" ở cuối bảng chi phí, giá trị là ${totalCost}.
-- Không thêm dòng ghi chú/备注 kiểu "以上费用以客户提供信息为准" hoặc các ghi chú báo giá khác.
+${costBudgetBlock}
 
 KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
@@ -322,6 +329,90 @@ IMAGE QUALITY KEYWORDS:
 ${get("imageQuality")}
 
 Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+}
+
+function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost) {
+  if (!includeGolf && !includeCost) return "";
+
+  const lines = ["YÊU CẦU GOLF & CHI PHÍ:"];
+  const clientRequest = get("clientRequest");
+  if (clientRequest) {
+    lines.push(`- Yêu cầu gốc của khách: ${clientRequest}`);
+  }
+
+  if (includeGolf) {
+    lines.push(`- Số trận golf: ${get("golfRounds")}`);
+    lines.push(`- Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}`);
+    lines.push("- Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu \"3球\", phải có đủ 3 buổi đánh golf.");
+    lines.push("- Ngày cuối nếu có yêu cầu \"打好球回国\" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.");
+  }
+
+  if (includeCost) {
+    lines.push(`- Số lượng khách cần tính giá: ${get("guestCount")} người`);
+    lines.push("- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).");
+    lines.push("- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.");
+    lines.push(`- Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.`);
+    lines.push("- Tất cả số tiền trong ảnh bắt buộc dùng tiền Trung Quốc: Nhân dân tệ (CNY / RMB / 人民币 / 元).");
+    lines.push("- Không tự nghĩ giá, không tự báo giá, không tự ước tính chi phí. Chỉ sử dụng các hạng mục và chi phí tôi đã nhập trong bảng dưới đây.");
+    lines.push("");
+    lines.push("Bảng chi phí do tôi nhập:");
+    lines.push(costTable);
+    lines.push("");
+    lines.push("Tổng chi phí tự động:");
+    lines.push(totalCost);
+  }
+
+  return lines.join("\n");
+}
+
+function buildItineraryPromptBlock(get, trip, daySections, useAutoItinerary, includeGolf) {
+  const sharedLayout = `Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
+Trong mỗi khối ngày, chia 2 phần:
+- Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
+- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày.
+- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}", ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
+
+  if (!useAutoItinerary) {
+    return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
+- Tôi sẽ cung cấp ảnh lịch trình riêng để bạn tham khảo khi tạo ảnh.
+${scheduleImageName ? `- Tên file ảnh lịch trình tham khảo: ${scheduleImageName}` : "- Ảnh lịch trình tham khảo sẽ được upload kèm trong GPT."}
+- ${get("scheduleImageInstruction")}
+- Dựa vào ảnh lịch trình tham khảo để xác định số ngày, thứ tự ngày, điểm đến, hoạt động, thời gian và nội dung quan trọng.
+- Không tự thay đổi logic lịch trình trong ảnh nếu ảnh đã có nội dung rõ ràng; chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa.
+${sharedLayout}`;
+  }
+
+  return `BODY - LỊCH TRÌNH:
+Chia thành ${trip.days} khối lớn cho từng ngày: ${daySections}.
+${sharedLayout}
+
+Quy tắc tự động lập lịch trình:
+${get("itineraryRules")}
+
+Yêu cầu nội dung lịch trình:
+- Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
+- Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày.
+- Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
+- Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
+- Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
+- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó.
+${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
+- Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
+}
+
+function buildCostBudgetPromptBlock(get, totalCost) {
+  return `KHỐI CHI PHÍ / COST BUDGET:
+- Nếu có yêu cầu tính phí, thêm một block riêng nằm sau phần lịch trình và trước khối khách sạn.
+- Tiêu đề gợi ý: "成本预算 | Cost Budget".
+- Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
+- Font chữ trong bảng chi phí phải theo cấu hình "${get("costFontSize")}", số tiền và TOTAL phải lớn hơn hoặc đậm hơn nội dung thường.
+- Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
+- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
+- Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
+- Chỉ hiển thị đúng hạng mục, chi tiết và chi phí từ "Bảng chi phí do tôi nhập".
+- Nếu hạng mục nào chưa nhập chi phí, hiển thị "待确认" thay vì tự tạo số tiền.
+- Bắt buộc có dòng "TOTAL / 总计" ở cuối bảng chi phí, giá trị là ${totalCost}.
+- Không thêm dòng ghi chú/备注 kiểu "以上费用以客户提供信息为准" hoặc các ghi chú báo giá khác.`;
 }
 
 function schedulePromptUpdate() {

@@ -31,6 +31,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -176,6 +177,7 @@ label {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -193,9 +195,38 @@ textarea {
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(15, 107, 93, 0.14);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.option-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.check-option {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--green-dark);
+}
+
+.check-option input {
+  width: auto;
+  margin: 0 8px 0 0;
 }
 
 .primary-button,
