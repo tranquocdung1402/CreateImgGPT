@@ -76,7 +76,8 @@ Ngôn ngữ hiển thị trong ảnh: ${get("imageLanguage")}.
 
 Nhiệm vụ:
 1. Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.
-2. Từ lịch trình đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.
+2. Nếu có yêu cầu golf/chi phí, tích hợp đầy đủ vào lịch trình và bố cục ảnh.
+3. Từ lịch trình đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.
 
 Điểm đến chính:
 ${get("destination")}
@@ -86,6 +87,16 @@ ${get("destinationDetails")}
 
 Định hướng lịch trình:
 ${get("tourBrief")}
+
+YÊU CẦU GOLF & CHI PHÍ:
+- Yêu cầu gốc của khách: ${get("clientRequest")}
+- Số trận golf: ${get("golfRounds")}
+- Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}
+- Nhóm khách cần tính giá: ${get("groupSizes")}
+- Quy tắc tính phí và trình bày ngân sách: ${get("costBudgetRules")}
+- Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu "3球", phải có đủ 3 buổi đánh golf.
+- Ngày cuối nếu có yêu cầu "打好球回国" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.
+- Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể, ưu tiên bảng so sánh nhóm 4 người và nhóm 8 người.
 
 Phong cách thiết kế:
 ${get("style")}
@@ -119,7 +130,16 @@ Yêu cầu nội dung lịch trình:
 - Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
 - Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
 - Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó.
+- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.
+
+KHỐI CHI PHÍ / COST BUDGET:
+- Nếu có yêu cầu tính phí, thêm một block riêng nằm sau phần lịch trình và trước khối khách sạn.
+- Tiêu đề gợi ý: "成本预算 | Cost Budget".
+- Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
+- Cột so sánh bắt buộc nếu được yêu cầu: 4人标准 và 8人标准.
+- Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
+- Các con số nếu không được cung cấp giá chính xác phải ghi là ước tính/dự kiến, không trình bày như báo giá cam kết.
 
 KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
