@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CreateImgGPT</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">CreateImgGPT</p>
+            <h1>Tour Brochure Prompt Builder</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="secondary-button" id="resetButton" type="button">Reset</button>
+            <button class="primary-button" id="generatePromptButton" type="button">Generate Prompt</button>
+          </div>
+        </header>
+
+        <div class="layout">
+          <form class="panel form-panel" id="promptForm">
+            <section class="form-section">
+              <div class="section-title">
+                <span>01</span>
+                <h2>Cấu Hình Chung</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Model điều phối
+                  <input name="model" value="gpt-5.5" />
+                </label>
+                <label>
+                  Model tạo ảnh
+                  <input name="imageModel" value="gpt-image-2" />
+                </label>
+                <label>
+                  Ngôn ngữ trong ảnh
+                  <input name="imageLanguage" value="Tiếng Trung Quốc Giản thể" />
+                </label>
+                <label>
+                  Loại thiết kế
+                  <input name="imageType" value="Infographic dạng dọc / vertical brochure" />
+                </label>
+              </div>
+              <label>
+                Vai trò
+                <textarea name="role" rows="3">Hãy đóng vai một chuyên gia thiết kế tour du lịch cao cấp và một chuyên gia thiết kế đồ họa chuyên nghiệp.</textarea>
+              </label>
+              <label>
+                Phong cách
+                <textarea name="style" rows="3">Sang trọng, hiện đại, cao cấp, dùng icon du lịch tinh tế, màu sắc hài hòa, chuyên nghiệp, nhã nhặn, tươi sáng, không sử dụng tông màu tối.</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>02</span>
+                <h2>Thông Tin Tour</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Điểm đến
+                  <input name="destination" value="Đà Nẵng - Hội An - Quảng Nam" />
+                </label>
+                <label>
+                  Thời lượng
+                  <input name="duration" value="5 ngày 4 đêm" />
+                </label>
+                <label>
+                  Tiêu đề tiếng Trung
+                  <input name="tourTitle" value="5天4晚轻奢度假行程" />
+                </label>
+                <label>
+                  Subtitle
+                  <input name="tourSubtitle" value="山海风光 · 海滨休闲 · 文化漫游" />
+                </label>
+              </div>
+              <label>
+                Điểm đến chi tiết
+                <textarea name="destinationDetails" rows="8">Đà Nẵng: Bà Nà Hills, Cầu Vàng, Cầu Rồng, Cầu Sông Hàn, biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, danh thắng Ngũ Hành Sơn, làng đá mỹ nghệ Non Nước, nhà thờ Con Gà, chợ Hàn, chợ Cồn, bảo tàng điêu khắc Chăm, công viên Châu Á (Asia Park), khu du lịch sinh thái suối khoáng nóng Núi Thần Tài, làng cổ Túy Loan.
+
+Hội An: Phố cổ Hội An, rừng dừa Bảy Mẫu, sông Hoài, làng gốm Thanh Hà, đảo Cù Lao Chàm, làng rau Trà Quế, làng mộc Kim Bồng, công viên Ấn tượng Hội An (Show Ký ức Hội An).
+
+Quảng Nam: VinWonders Nam Hội An, Hoiana, biển An Bàng, thánh địa Mỹ Sơn, làng bích họa Tam Thanh, tượng đài Mẹ Thứ, địa đạo Kỳ Anh, Hòn Kẽm Đá Dừng.</textarea>
+              </label>
+              <label>
+                Định hướng lịch trình
+                <textarea name="tourBrief" rows="4">Thiết kế lịch trình nghỉ dưỡng cao cấp, tự chọn và phân bổ các địa danh phù hợp từ danh sách điểm đến chi tiết, sắp xếp thời gian sáng/trưa/chiều/tối logic và tiết kiệm thời gian di chuyển.</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>03</span>
+                <h2>Header</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Logo công ty
+                  <input id="logoInput" name="logo" type="file" accept="image/*" />
+                </label>
+                <label>
+                  Ảnh nền header
+                  <input name="headerImage" value="Toàn cảnh thành phố Đà Nẵng nhìn ra Cầu Rồng hoặc Cầu Sông Hàn, hoành tráng, sáng rõ." />
+                </label>
+              </div>
+              <label>
+                Yêu cầu logo
+                <textarea name="logoRequirements" rows="3">Phía góc trái của Header sử dụng hình ảnh mà tôi cung cấp làm logo của công ty, logo không sử dụng background đen riêng mà tích hợp liền mạch với header, phần logo màu vàng phải giống ảnh mà tôi cung cấp 100%, kích thước logo phù hợp với dòng chữ ở header, không được to quá.</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>04</span>
+                <h2>Lịch Trình Tự Động</h2>
+              </div>
+              <div class="itinerary-summary" id="itinerarySummary"></div>
+              <label>
+                Quy tắc tạo lịch trình
+                <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và điểm đến chi tiết, tự động lập lịch trình đầy đủ theo từng ngày. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày, tạo timeline bên trái với các mốc giờ HH:MM cho sáng/trưa/chiều/tối; mỗi dòng có icon chức năng nhỏ như đồng hồ, xe hơi, nhà hàng, máy ảnh. Bên phải tạo 4 thumbnail địa danh thực tế xuất hiện trong ngày đó, mỗi ảnh có caption tiếng Trung màu vàng trên banner xanh đen mờ.</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>05</span>
+                <h2>Khách Sạn</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Tiêu đề block
+                  <input name="hotelTitle" value="独家奢华住宿 | Exclusive Luxury Accommodation" />
+                </label>
+                <label>
+                  Tên khách sạn
+                  <input name="hotelName" value="新世界会安海滩度假酒店 (New World Hoiana Beach Resort)" />
+                </label>
+              </div>
+              <label>
+                Hình ảnh khách sạn
+                <textarea name="hotelImages" rows="3">Thumbnail thực tế cao cấp: bể bơi vô cực hướng biển, phòng ngủ suite sang trọng, toàn cảnh resort.</textarea>
+              </label>
+              <label>
+                Tiện ích
+                <textarea name="hotelAmenities" rows="3">超凡海景套房, 私人海滩, 顶级水疗中心, 米其林概念餐厅</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>06</span>
+                <h2>VIP Transfer</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Tiêu đề block
+                  <input name="vipTitle" value="VIP尊享接送服务 | VIP Luxury Transfer Service" />
+                </label>
+                <label>
+                  Tiện ích
+                  <input name="vipAmenities" value="VIP 9座豪华商务车, 专属私人导游" />
+                </label>
+              </div>
+              <label>
+                Hình ảnh VIP
+                <textarea name="vipImages" rows="4">Một chiếc Dcar Solati Limousine 9 chỗ màu đen VIP sang trọng; một người mẫu hướng dẫn viên du lịch trẻ trung, trang nhã theo phong cách Hàn Quốc, mỉm cười thân thiện chào đón khách, tóc thả tự nhiên.</textarea>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>07</span>
+                <h2>Footer</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Tên công ty
+                  <input name="companyChinese" value="弈鼎旅游" />
+                </label>
+                <label>
+                  Tên tiếng Anh
+                  <input name="companyEnglish" value="YD TRAVEL" />
+                </label>
+                <label>
+                  Hotline
+                  <input name="hotline" value="+84776765801" />
+                </label>
+                <label>
+                  Địa chỉ
+                  <input name="address" value="越南岘港" />
+                </label>
+              </div>
+              <label>
+                Slogan
+                <input name="slogan" value="岘港之美，等你来探索！" />
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>08</span>
+                <h2>Yêu Cầu Kỹ Thuật</h2>
+              </div>
+              <label>
+                Ràng buộc xuất ảnh
+                <textarea name="technicalRequirements" rows="5">Tỷ lệ khung hình dọc dạng brochure dài, hiển thị đầy đủ nội dung, không cắt chữ hoặc hình ảnh, chữ Trung Quốc rõ ràng, không lỗi font, bố cục chia section riêng biệt, từng thumbnail có caption màu vàng trên banner xanh đen mờ.</textarea>
+              </label>
+            </section>
+          </form>
+
+          <aside class="panel preview-panel">
+            <div class="sticky-preview">
+              <div class="preview-header">
+                <div>
+                  <p class="eyebrow">Output</p>
+                  <h2>Preview</h2>
+                </div>
+              </div>
+
+              <div class="prompt-output">
+                <div class="prompt-output-header">
+                  <label for="promptOutput">Generated Prompt</label>
+                  <div class="copy-actions">
+                    <span id="copyNotice" aria-live="polite"></span>
+                    <button class="secondary-button compact-button" id="copyPromptButton" type="button">
+                      Copy Prompt
+                    </button>
+                  </div>
+                </div>
+                <textarea id="promptOutput" rows="16" spellcheck="false"></textarea>
+              </div>
+
+              <div class="image-preview" id="imagePreview">
+                <div class="empty-state">Tạm thời tập trung vào tạo prompt</div>
+              </div>
+
+              <div class="download-row">
+                <button class="secondary-button" id="downloadButton" type="button" disabled>Download</button>
+                <p id="statusText" aria-live="polite"></p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

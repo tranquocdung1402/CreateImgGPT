@@ -1,0 +1,397 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7f6;
+  --panel: #ffffff;
+  --panel-strong: #eef5f4;
+  --text: #15211f;
+  --muted: #66736f;
+  --line: #d9e2df;
+  --green: #0f6b5d;
+  --green-dark: #0b4a43;
+  --gold: #c89b3c;
+  --gold-soft: #f5ead1;
+  --danger: #a73636;
+  --shadow: 0 16px 40px rgba(22, 38, 35, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 107, 93, 0.08), transparent 280px),
+    var(--bg);
+  color: var(--text);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.workspace {
+  max-width: 1540px;
+  margin: 0 auto;
+}
+
+.topbar,
+.preview-header,
+.download-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar {
+  margin-bottom: 20px;
+}
+
+.topbar h1,
+.preview-header h2 {
+  margin: 0;
+}
+
+.topbar h1 {
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.form-panel {
+  padding: 22px;
+}
+
+.preview-panel {
+  padding: 18px;
+}
+
+.sticky-preview {
+  position: sticky;
+  top: 18px;
+}
+
+.form-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.form-section:first-child {
+  padding-top: 0;
+}
+
+.form-section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-title span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdfc;
+  color: var(--text);
+  padding: 11px 12px;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 48px;
+  line-height: 1.5;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(15, 107, 93, 0.14);
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 800;
+}
+
+.primary-button {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.secondary-button {
+  background: var(--gold-soft);
+  color: #72511a;
+  border: 1px solid #e5ca8b;
+}
+
+.days,
+.itinerary-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.day-card,
+.summary-card {
+  padding: 14px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.summary-card strong {
+  color: var(--green-dark);
+  font-size: 15px;
+}
+
+.summary-card span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.day-card h3 {
+  margin: 0 0 12px;
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.prompt-output {
+  margin-top: 18px;
+}
+
+.prompt-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.prompt-output-header label {
+  display: block;
+}
+
+.compact-button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.copy-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#copyNotice {
+  min-width: 100px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+}
+
+#promptOutput {
+  min-height: 300px;
+  background: #0f1f1d;
+  color: #f5ead1;
+  border-color: #0f1f1d;
+}
+
+.image-preview {
+  display: grid;
+  place-items: center;
+  margin-top: 16px;
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px dashed #b7c8c3;
+  border-radius: 8px;
+  background:
+    linear-gradient(45deg, rgba(15, 107, 93, 0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(15, 107, 93, 0.06) 25%, transparent 25%),
+    #fbfdfc;
+  background-size: 28px 28px;
+}
+
+.image-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.empty-state {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.download-row {
+  margin-top: 14px;
+}
+
+#statusText {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+#statusText.error {
+  color: var(--danger);
+}
+
+@media (max-width: 1120px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sticky-preview {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .topbar,
+  .preview-header,
+  .download-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar h1 {
+    font-size: 24px;
+  }
+
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .form-panel,
+  .preview-panel {
+    padding: 16px;
+  }
+
+  .topbar-actions,
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .prompt-output-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .copy-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #copyNotice {
+    min-width: 0;
+    text-align: left;
+  }
+}
