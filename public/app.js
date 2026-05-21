@@ -1,8 +1,47 @@
 let logoDataUrl = "";
 let currentImageDataUrl = "";
 
+const defaultCostItems = [
+  {
+    item: "高尔夫1 Golf 1",
+    detail: "会安南 Hoiana Shores（含果岭费/球童/双人球车）",
+    cost: ""
+  },
+  {
+    item: "高尔夫2 Golf 2",
+    detail: "巴拿山 Ba Na Hills Golf Club",
+    cost: ""
+  },
+  {
+    item: "高尔夫3 Golf 3",
+    detail: "传奇诺曼 Norman Course",
+    cost: ""
+  },
+  {
+    item: "酒店住宿 Hotel",
+    detail: "新世界会安海滩度假酒店 2晚2间",
+    cost: ""
+  },
+  {
+    item: "用车成本 Transport",
+    detail: "VIP 9座商务车 3天包车（4人适用）",
+    cost: ""
+  },
+  {
+    item: "餐饮费用 Food & Beverage",
+    detail: "特色午晚餐及早餐",
+    cost: ""
+  },
+  {
+    item: "中文导游 Tour Guide",
+    detail: "专属私人导游 3天",
+    cost: ""
+  }
+];
+
 const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
+const costItemsContainer = document.querySelector("#costItems");
 const promptOutput = document.querySelector("#promptOutput");
 const statusText = document.querySelector("#statusText");
 const imagePreview = document.querySelector("#imagePreview");
@@ -14,6 +53,7 @@ const tourTitleInput = form.elements.tourTitle;
 let copyNoticeTimer;
 let promptUpdateTimer;
 
+renderCostItems(defaultCostItems);
 syncTourTitle();
 renderItinerarySummary();
 promptOutput.value = buildPrompt();
@@ -35,6 +75,7 @@ document.querySelector("#generatePromptButton").addEventListener("click", () => 
 
 document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
+  renderCostItems(defaultCostItems);
   syncTourTitle();
   renderItinerarySummary();
   logoDataUrl = "";
@@ -51,6 +92,7 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 });
 
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
+document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
 downloadButton.addEventListener("click", downloadImage);
 
 function renderItinerarySummary() {
@@ -64,11 +106,75 @@ function renderItinerarySummary() {
   `;
 }
 
+function renderCostItems(items) {
+  costItemsContainer.innerHTML = items.map((item) => costRowTemplate(item)).join("");
+}
+
+function costRowTemplate(item) {
+  return `
+    <div class="cost-row">
+      <input class="cost-item-name" value="${escapeHtml(item.item)}" aria-label="Hạng mục" />
+      <input class="cost-item-detail" value="${escapeHtml(item.detail)}" aria-label="Chi tiết" />
+      <input class="cost-item-amount" value="${escapeHtml(item.cost)}" inputmode="numeric" aria-label="Chi phí" placeholder="VD: 1200" />
+      <button class="icon-button remove-cost-item" type="button" aria-label="Xóa hạng mục">-</button>
+    </div>
+  `;
+}
+
+function addCostItem() {
+  costItemsContainer.insertAdjacentHTML(
+    "beforeend",
+    costRowTemplate({
+      item: "新项目 New Item",
+      detail: "请输入项目详情",
+      cost: ""
+    })
+  );
+  updatePrompt("Đã thêm hạng mục chi phí.");
+}
+
+costItemsContainer.addEventListener("input", () => {
+  schedulePromptUpdate();
+});
+
+costItemsContainer.addEventListener("click", (event) => {
+  const button = event.target.closest(".remove-cost-item");
+  if (!button) return;
+
+  button.closest(".cost-row")?.remove();
+  updatePrompt("Đã xóa hạng mục chi phí.");
+});
+
+function getCostItems() {
+  return [...costItemsContainer.querySelectorAll(".cost-row")]
+    .map((row) => ({
+      item: row.querySelector(".cost-item-name")?.value.trim() || "",
+      detail: row.querySelector(".cost-item-detail")?.value.trim() || "",
+      cost: row.querySelector(".cost-item-amount")?.value.trim() || ""
+    }))
+    .filter((item) => item.item || item.detail || item.cost);
+}
+
+function formatCostItemsForPrompt() {
+  const items = getCostItems();
+  if (items.length === 0) {
+    return "Không có hạng mục chi phí được nhập.";
+  }
+
+  const rows = items.map((item, index) => {
+    const cost = item.cost ? `${item.cost} 元` : "Chưa nhập chi phí";
+    return `${index + 1}. ${item.item} | ${item.detail} | ${cost}`;
+  });
+
+  return ["Hạng mục | Chi tiết | Chi phí (元 - Tệ)", ...rows].join("\n");
+}
+
 function buildPrompt() {
   const data = new FormData(form);
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
+  const costTable = formatCostItemsForPrompt();
 
   return `${get("role")}
 
@@ -94,12 +200,15 @@ YÊU CẦU GOLF & CHI PHÍ:
 - Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}
 - Số lượng khách cần tính giá: ${get("guestCount")} người
 - Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
-- Quy tắc tính phí và trình bày ngân sách: ${get("costBudgetRules")}
 - Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu "3球", phải có đủ 3 buổi đánh golf.
 - Ngày cuối nếu có yêu cầu "打好球回国" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.
 - Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.
 - Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.
 - Tất cả số tiền trong ảnh bắt buộc dùng tiền Trung Quốc: Nhân dân tệ (CNY / RMB / 人民币 / 元).
+- Không tự nghĩ giá, không tự báo giá, không tự ước tính chi phí. Chỉ sử dụng các hạng mục và chi phí tôi đã nhập trong bảng dưới đây.
+
+Bảng chi phí do tôi nhập:
+${costTable}
 
 Phong cách thiết kế:
 ${get("style")}
@@ -143,7 +252,8 @@ KHỐI CHI PHÍ / COST BUDGET:
 - Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
 - Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
-- Các con số nếu không được cung cấp giá chính xác phải ghi là ước tính/dự kiến, không trình bày như báo giá cam kết.
+- Chỉ hiển thị đúng hạng mục, chi tiết và chi phí từ "Bảng chi phí do tôi nhập".
+- Nếu hạng mục nào chưa nhập chi phí, hiển thị "待确认" thay vì tự tạo số tiền.
 
 KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
