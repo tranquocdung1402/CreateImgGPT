@@ -359,6 +359,85 @@ textarea:focus {
   margin: 0 8px 0 0;
 }
 
+.destination-picker {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.destination-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.destination-picker-header h3,
+.destination-picker-header p {
+  margin: 0;
+}
+
+.destination-picker-header h3 {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.destination-picker-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.destination-picker-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.destination-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.destination-group {
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.destination-group legend {
+  padding: 0 6px;
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.destination-options {
+  display: grid;
+  gap: 8px;
+}
+
+.destination-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.destination-option input {
+  width: auto;
+  margin: 2px 0 0;
+}
+
 .primary-button,
 .secondary-button {
   min-height: 42px;
@@ -642,6 +721,10 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .destination-groups {
+    grid-template-columns: 1fr;
+  }
+
   .sticky-preview {
     position: static;
   }
@@ -665,6 +748,15 @@ textarea:focus {
   }
 
   .travel-hero-tags {
+    justify-content: flex-start;
+  }
+
+  .destination-picker-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .destination-picker-actions {
     justify-content: flex-start;
   }
 

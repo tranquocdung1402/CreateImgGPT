@@ -40,8 +40,60 @@ const defaultCostItems = [
   }
 ];
 
+const destinationGroupsData = [
+  {
+    city: "Đà Nẵng",
+    places: [
+      "Bà Nà Hills",
+      "Cầu Vàng",
+      "Cầu Rồng",
+      "Cầu Sông Hàn",
+      "biển Mỹ Khê",
+      "bán đảo Sơn Trà",
+      "chùa Linh Ứng",
+      "danh thắng Ngũ Hành Sơn",
+      "làng đá mỹ nghệ Non Nước",
+      "nhà thờ Con Gà",
+      "chợ Hàn",
+      "chợ Cồn",
+      "bảo tàng điêu khắc Chăm",
+      "công viên Châu Á (Asia Park)",
+      "khu du lịch sinh thái suối khoáng nóng Núi Thần Tài",
+      "làng cổ Túy Loan"
+    ]
+  },
+  {
+    city: "Hội An",
+    places: [
+      "Phố cổ Hội An",
+      "rừng dừa Bảy Mẫu",
+      "sông Hoài",
+      "làng gốm Thanh Hà",
+      "đảo Cù Lao Chàm",
+      "làng rau Trà Quế",
+      "làng mộc Kim Bồng",
+      "công viên Ấn tượng Hội An (Show Ký ức Hội An)"
+    ]
+  },
+  {
+    city: "Quảng Nam",
+    places: [
+      "VinWonders Nam Hội An",
+      "Hoiana",
+      "biển An Bàng",
+      "thánh địa Mỹ Sơn",
+      "làng bích họa Tam Thanh",
+      "tượng đài Mẹ Thứ",
+      "địa đạo Kỳ Anh",
+      "Hòn Kẽm Đá Dừng"
+    ]
+  }
+];
+
 const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
+const destinationGroups = document.querySelector("#destinationGroups");
+const selectedDestinationDetails = document.querySelector("#selectedDestinationDetails");
 const costItemsContainer = document.querySelector("#costItems");
 const costTotal = document.querySelector("#costTotal");
 const promptOutput = document.querySelector("#promptOutput");
@@ -70,6 +122,8 @@ const hotelFields = document.querySelector("#hotelFields");
 let copyNoticeTimer;
 let promptUpdateTimer;
 
+renderDestinationGroups();
+updateSelectedDestinationDetails();
 renderCostItems(defaultCostItems);
 renderItinerarySummary();
 renderManualItinerary();
@@ -92,6 +146,7 @@ document.querySelector("#generatePromptButton").addEventListener("click", () => 
 
 document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
+  updateSelectedDestinationDetails();
   renderCostItems(defaultCostItems);
   renderItinerarySummary();
   renderManualItinerary({ reset: true });
@@ -113,6 +168,14 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
 document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
+document.querySelector("#selectAllDestinationsButton").addEventListener("click", () => {
+  setAllDestinationCheckboxes(true);
+  updatePrompt("Đã chọn tất cả điểm đến.");
+});
+document.querySelector("#clearDestinationsButton").addEventListener("click", () => {
+  setAllDestinationCheckboxes(false);
+  updatePrompt("Đã bỏ chọn điểm đến.");
+});
 document.querySelector("#syncManualItineraryButton").addEventListener("click", () => {
   renderManualItinerary();
   updatePrompt("Đã đồng bộ số ngày lịch trình tự viết.");
@@ -148,6 +211,62 @@ scheduleImageInput.addEventListener("change", (event) => {
   scheduleImageName = event.target.files?.[0]?.name || "";
   updatePrompt(scheduleImageName ? "Đã nạp tên ảnh lịch trình tham khảo." : "Prompt tự động cập nhật.");
 });
+
+destinationGroups.addEventListener("change", (event) => {
+  if (!event.target.classList.contains("destination-checkbox")) return;
+  updateSelectedDestinationDetails();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+function renderDestinationGroups() {
+  destinationGroups.innerHTML = destinationGroupsData
+    .map(
+      (group) => `
+        <fieldset class="destination-group">
+          <legend>${escapeHtml(group.city)}</legend>
+          <div class="destination-options">
+            ${group.places
+              .map(
+                (place) => `
+                  <label class="destination-option">
+                    <input class="destination-checkbox" type="checkbox" value="${escapeHtml(place)}" data-city="${escapeHtml(group.city)}" checked />
+                    <span>${escapeHtml(place)}</span>
+                  </label>
+                `
+              )
+              .join("")}
+          </div>
+        </fieldset>
+      `
+    )
+    .join("");
+}
+
+function setAllDestinationCheckboxes(checked) {
+  destinationGroups.querySelectorAll(".destination-checkbox").forEach((checkbox) => {
+    checkbox.checked = checked;
+  });
+  updateSelectedDestinationDetails();
+}
+
+function updateSelectedDestinationDetails() {
+  selectedDestinationDetails.value = formatSelectedDestinations();
+}
+
+function formatSelectedDestinations() {
+  const lines = destinationGroupsData
+    .map((group) => {
+      const selectedPlaces = [...destinationGroups.querySelectorAll(`.destination-checkbox[data-city="${cssEscape(group.city)}"]:checked`)].map((checkbox) => checkbox.value);
+      return selectedPlaces.length ? `${group.city}: ${selectedPlaces.join(", ")}.` : "";
+    })
+    .filter(Boolean);
+
+  return lines.length ? lines.join("\n\n") : "Không có điểm đến chi tiết được chọn. Chỉ dựa vào điểm đến chính và các yêu cầu khác.";
+}
+
+function cssEscape(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
 
 function renderOptionVisibility() {
   const mode = itineraryMode.value;
@@ -404,6 +523,7 @@ function formatCurrency(value) {
 }
 
 function buildPrompt() {
+  updateSelectedDestinationDetails();
   const data = new FormData(form);
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));

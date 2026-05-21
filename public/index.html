@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260521-vnd-cost" />
+    <link rel="stylesheet" href="styles.css?v=20260521-destination-checkboxes" />
   </head>
   <body>
     <main class="app-shell">
@@ -104,14 +104,20 @@
                   <input name="tourSubtitle" placeholder="Để trống để GPT tự tạo theo lịch trình" />
                 </label>
               </div>
-              <label>
-                Điểm đến chi tiết
-                <textarea name="destinationDetails" rows="8">Đà Nẵng: Bà Nà Hills, Cầu Vàng, Cầu Rồng, Cầu Sông Hàn, biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, danh thắng Ngũ Hành Sơn, làng đá mỹ nghệ Non Nước, nhà thờ Con Gà, chợ Hàn, chợ Cồn, bảo tàng điêu khắc Chăm, công viên Châu Á (Asia Park), khu du lịch sinh thái suối khoáng nóng Núi Thần Tài, làng cổ Túy Loan.
-
-Hội An: Phố cổ Hội An, rừng dừa Bảy Mẫu, sông Hoài, làng gốm Thanh Hà, đảo Cù Lao Chàm, làng rau Trà Quế, làng mộc Kim Bồng, công viên Ấn tượng Hội An (Show Ký ức Hội An).
-
-Quảng Nam: VinWonders Nam Hội An, Hoiana, biển An Bàng, thánh địa Mỹ Sơn, làng bích họa Tam Thanh, tượng đài Mẹ Thứ, địa đạo Kỳ Anh, Hòn Kẽm Đá Dừng.</textarea>
-              </label>
+              <input id="selectedDestinationDetails" name="destinationDetails" type="hidden" />
+              <div class="destination-picker">
+                <div class="destination-picker-header">
+                  <div>
+                    <h3>Điểm đến chi tiết</h3>
+                    <p>Chỉ các địa điểm được tick mới được thêm vào prompt.</p>
+                  </div>
+                  <div class="destination-picker-actions">
+                    <button class="secondary-button compact-button" id="selectAllDestinationsButton" type="button">Chọn tất cả</button>
+                    <button class="secondary-button compact-button" id="clearDestinationsButton" type="button">Bỏ chọn</button>
+                  </div>
+                </div>
+                <div class="destination-groups" id="destinationGroups"></div>
+              </div>
               <label>
                 Định hướng lịch trình
                 <textarea name="tourBrief" rows="4">Thiết kế lịch trình nghỉ dưỡng cao cấp, tự chọn và phân bổ các địa danh phù hợp từ danh sách điểm đến chi tiết, sắp xếp thời gian sáng/trưa/chiều/tối logic và tiết kiệm thời gian di chuyển.</textarea>
