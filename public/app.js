@@ -93,13 +93,13 @@ YÊU CẦU GOLF & CHI PHÍ:
 - Số trận golf: ${get("golfRounds")}
 - Sân golf / điểm golf cần đưa vào lịch trình: ${get("golfCourses")}
 - Số lượng khách cần tính giá: ${get("guestCount")} người
-- Đơn vị tiền tệ bắt buộc: ${get("currency")}
+- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
 - Quy tắc tính phí và trình bày ngân sách: ${get("costBudgetRules")}
 - Lịch trình phải phân bổ đủ số trận golf theo thời lượng tour. Với yêu cầu "3球", phải có đủ 3 buổi đánh golf.
 - Ngày cuối nếu có yêu cầu "打好球回国" thì sắp xếp đánh golf trước, sau đó ra sân bay về nước.
 - Trong ảnh cần có một block riêng về chi phí/ngân sách, trình bày rõ ràng bằng tiếng Trung Giản thể.
 - Bảng chi phí phải tính theo đúng số lượng khách: ${get("guestCount")} người.
-- Tất cả số tiền trong ảnh bắt buộc dùng ${get("currency")}; tuyệt đối không dùng Nhân dân tệ Trung Quốc, CNY, RMB hoặc 元 nếu đơn vị tiền tệ đang là Yên Nhật.
+- Tất cả số tiền trong ảnh bắt buộc dùng tiền Trung Quốc: Nhân dân tệ (CNY / RMB / 人民币 / 元).
 
 Phong cách thiết kế:
 ${get("style")}
@@ -141,8 +141,7 @@ KHỐI CHI PHÍ / COST BUDGET:
 - Tiêu đề gợi ý: "成本预算 | Cost Budget".
 - Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
 - Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
-- Đơn vị tiền tệ bắt buộc: ${get("currency")}.
-- Không sử dụng ký hiệu/đơn vị Nhân dân tệ Trung Quốc như RMB, CNY, 人民币, 元 khi yêu cầu đơn vị tiền tệ là Yên Nhật.
+- Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
 - Các con số nếu không được cung cấp giá chính xác phải ghi là ước tính/dự kiến, không trình bày như báo giá cam kết.
 
