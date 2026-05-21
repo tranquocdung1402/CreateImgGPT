@@ -250,6 +250,8 @@ Bố cục tổng thể:
 - Thiết kế sang trọng, hiện đại, dùng icon máy bay, khách sạn, nhà hàng, xe hơi, máy ảnh, đồng hồ, cáp treo, chùa.
 - Màu chủ đạo xanh sang trọng, gold, trắng và các màu sáng chuyên nghiệp.
 - Không dùng tông tối làm chủ đạo.
+- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Không dùng chữ quá nhỏ; timeline, giờ, hoạt động và caption phải đọc rõ trên ảnh dọc.
+- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.
 
 HEADER:
 - Logo công ty đặt ở góc trái header. ${get("logoRequirements")}
@@ -263,6 +265,7 @@ Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại 
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
 - Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày.
+- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}", ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.
 
 Quy tắc tự động lập lịch trình:
 ${get("itineraryRules")}
@@ -281,6 +284,7 @@ KHỐI CHI PHÍ / COST BUDGET:
 - Nếu có yêu cầu tính phí, thêm một block riêng nằm sau phần lịch trình và trước khối khách sạn.
 - Tiêu đề gợi ý: "成本预算 | Cost Budget".
 - Trình bày dạng bảng cao cấp, dễ đọc, có icon tiền/xe/golf/khách sạn.
+- Font chữ trong bảng chi phí phải theo cấu hình "${get("costFontSize")}", số tiền và TOTAL phải lớn hơn hoặc đậm hơn nội dung thường.
 - Tính theo đúng số lượng khách đã nhập: ${get("guestCount")}人标准.
 - Đơn vị tiền tệ bắt buộc: tiền Trung Quốc, Nhân dân tệ (CNY / RMB / 人民币 / 元).
 - Hàng chi phí xe phải tách riêng và nêu rõ là "用车成本".
@@ -380,11 +384,46 @@ function buildExcelWorkbook() {
   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
   xmlns:html="http://www.w3.org/TR/REC-html40">
   <Styles>
-    <Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAD3" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="Title"><Font ss:Bold="1" ss:Size="14"/></Style>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Font ss:FontName="Arial" ss:Size="11"/>
+    </Style>
+    <Style ss:ID="Title">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Font ss:FontName="Arial" ss:Bold="1" ss:Size="16" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#0F6B5D" ss:Pattern="Solid"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
+    <Style ss:ID="Header">
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+      <Font ss:FontName="Arial" ss:Bold="1" ss:Size="12"/>
+      <Interior ss:Color="#D9EAD3" ss:Pattern="Solid"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
+    <Style ss:ID="Cell">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
+    <Style ss:ID="Label">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Font ss:FontName="Arial" ss:Bold="1"/>
+      <Interior ss:Color="#F5EAD1" ss:Pattern="Solid"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
+    <Style ss:ID="Money">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Top"/>
+      <NumberFormat ss:Format="#,##0"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
+    <Style ss:ID="Total">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <Font ss:FontName="Arial" ss:Bold="1" ss:Size="12"/>
+      <Interior ss:Color="#F5EAD1" ss:Pattern="Solid"/>
+      <Borders>${borderXml()}</Borders>
+    </Style>
   </Styles>
-  ${worksheetXml("Lich trinh", itineraryRows)}
-  ${worksheetXml("Chi phi", costRows)}
+  ${worksheetXml("Lich trinh", itineraryRows, [170, 760])}
+  ${worksheetXml("Chi phi", costRows, [210, 560, 150])}
 </Workbook>`;
 }
 
@@ -393,52 +432,64 @@ function buildItineraryExcelRows() {
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
   const rows = [
-    [{ value: "LỊCH TRÌNH", style: "Title" }],
-    ["Trường", "Nội dung"],
-    ["Tiêu đề tour", get("tourTitle")],
-    ["Thời lượng", get("duration")],
-    ["Điểm đến", get("destination")],
-    ["Điểm đến chi tiết", get("destinationDetails")],
-    ["Yêu cầu gốc của khách", get("clientRequest")],
-    ["Số trận golf", get("golfRounds")],
-    ["Sân golf / điểm golf", get("golfCourses")],
-    ["Số lượng khách", `${get("guestCount")} người`],
+    [{ value: "LỊCH TRÌNH", style: "Title", mergeAcross: 1 }],
+    [{ value: "Trường", style: "Header" }, { value: "Nội dung", style: "Header" }],
+    [labelCell("Tiêu đề tour"), cell(get("tourTitle"))],
+    [labelCell("Thời lượng"), cell(get("duration"))],
+    [labelCell("Điểm đến"), cell(get("destination"))],
+    [labelCell("Điểm đến chi tiết"), cell(get("destinationDetails"))],
+    [labelCell("Yêu cầu gốc của khách"), cell(get("clientRequest"))],
+    [labelCell("Số trận golf"), cell(get("golfRounds"))],
+    [labelCell("Sân golf / điểm golf"), cell(get("golfCourses"))],
+    [labelCell("Số lượng khách"), cell(`${get("guestCount")} người`)],
     [],
-    ["Ngày", "Yêu cầu lịch trình"]
+    [{ value: "Ngày", style: "Header" }, { value: "Yêu cầu lịch trình", style: "Header" }]
   ];
 
   for (let index = 0; index < trip.days; index += 1) {
     rows.push([
-      `第${index + 1}天`,
-      "Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển."
+      labelCell(`第${index + 1}天`),
+      cell("Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển.")
     ]);
   }
 
-  rows.push([], ["Quy tắc tạo lịch trình", get("itineraryRules")]);
+  rows.push([], [labelCell("Quy tắc tạo lịch trình"), cell(get("itineraryRules"))]);
   return rows;
 }
 
 function buildCostExcelRows() {
   const rows = [
-    [{ value: "CHI PHÍ", style: "Title" }],
-    ["Hạng mục", "Chi tiết", "Chi phí (元 - Tệ)"]
+    [{ value: "CHI PHÍ", style: "Title", mergeAcross: 2 }],
+    [
+      { value: "Hạng mục", style: "Header" },
+      { value: "Chi tiết", style: "Header" },
+      { value: "Chi phí (元 - Tệ)", style: "Header" }
+    ]
   ];
 
   for (const item of getCostItems()) {
-    rows.push([item.item, item.detail, item.cost || "待确认"]);
+    rows.push([
+      cell(item.item),
+      cell(item.detail),
+      moneyCell(item.cost || "待确认")
+    ]);
   }
 
-  rows.push(["TOTAL / 总计", "", formatCurrency(calculateCostTotal())]);
+  rows.push([
+    { value: "TOTAL / 总计", style: "Total", mergeAcross: 1 },
+    { value: calculateCostTotal(), style: "Total", type: "Number" }
+  ]);
   return rows;
 }
 
-function worksheetXml(name, rows) {
+function worksheetXml(name, rows, widths = []) {
+  const columns = widths.map((width) => `<Column ss:Width="${width}"/>`).join("");
   const tableRows = rows.map((row) => {
     const cells = row.map((cell) => cellXml(cell)).join("");
     return `<Row>${cells}</Row>`;
   }).join("");
 
-  return `<Worksheet ss:Name="${escapeXml(name)}"><Table>${tableRows}</Table></Worksheet>`;
+  return `<Worksheet ss:Name="${escapeXml(name)}"><Table>${columns}${tableRows}</Table></Worksheet>`;
 }
 
 function cellXml(cell) {
@@ -447,12 +498,46 @@ function cellXml(cell) {
   }
 
   if (typeof cell === "object") {
-    return `<Cell${cell.style ? ` ss:StyleID="${escapeXml(cell.style)}"` : ""}><Data ss:Type="String">${escapeXml(cell.value)}</Data></Cell>`;
+    const style = cell.style || "Cell";
+    const type = cell.type || inferCellType(cell.value);
+    const merge = cell.mergeAcross ? ` ss:MergeAcross="${cell.mergeAcross}"` : "";
+    return `<Cell ss:StyleID="${escapeXml(style)}"${merge}><Data ss:Type="${type}">${escapeXml(cell.value)}</Data></Cell>`;
   }
 
   const value = String(cell);
-  const numeric = value.trim() !== "" && /^-?\d+(\.\d+)?$/.test(value.replace(/,/g, ""));
-  return `<Cell><Data ss:Type="${numeric ? "Number" : "String"}">${escapeXml(numeric ? value.replace(/,/g, "") : value)}</Data></Cell>`;
+  const type = inferCellType(value);
+  const output = type === "Number" ? value.replace(/,/g, "") : value;
+  return `<Cell ss:StyleID="Cell"><Data ss:Type="${type}">${escapeXml(output)}</Data></Cell>`;
+}
+
+function cell(value) {
+  return { value, style: "Cell" };
+}
+
+function labelCell(value) {
+  return { value, style: "Label" };
+}
+
+function moneyCell(value) {
+  const amount = parseCostAmount(value);
+  if (amount > 0 || String(value).trim() === "0") {
+    return { value: amount, style: "Money", type: "Number" };
+  }
+  return { value, style: "Cell" };
+}
+
+function inferCellType(value) {
+  const text = String(value ?? "");
+  return text.trim() !== "" && /^-?\d+(\.\d+)?$/.test(text.replace(/,/g, "")) ? "Number" : "String";
+}
+
+function borderXml() {
+  return [
+    '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7C8C3"/>',
+    '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7C8C3"/>',
+    '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7C8C3"/>',
+    '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#B7C8C3"/>'
+  ].join("");
 }
 
 function downloadBlob(blob, fileName) {
