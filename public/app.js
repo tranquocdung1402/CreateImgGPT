@@ -297,8 +297,7 @@ Bố cục tổng thể:
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
-- LOGO REFERENCE IS STRICT: nếu có ảnh logo được upload, phải đặt chính logo đó ở góc trái Header, giữ nguyên hình dáng, tỷ lệ, màu vàng, chi tiết và phong cách của ảnh tham chiếu.
-- Không tự vẽ lại logo, không tái thiết kế logo, không đổi chữ trong logo, không thêm hiệu ứng làm sai logo, không dùng logo giả.
+- Ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
 - ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${get("headerImage")}
