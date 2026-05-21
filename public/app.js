@@ -280,7 +280,7 @@ function costRowTemplate(item) {
     <div class="cost-row">
       <input class="cost-item-name" value="${escapeHtml(item.item)}" aria-label="Hạng mục" />
       <input class="cost-item-detail" value="${escapeHtml(item.detail)}" aria-label="Chi tiết" />
-      <input class="cost-item-amount" value="${escapeHtml(item.cost)}" inputmode="numeric" aria-label="Chi phí" placeholder="VD: 1200" />
+      <input class="cost-item-amount" value="${escapeHtml(formatCostInputValue(item.cost))}" inputmode="numeric" aria-label="Chi phí" placeholder="VD: 1,200,000" />
       <button class="icon-button remove-cost-item" type="button" aria-label="Xóa hạng mục">-</button>
     </div>
   `;
@@ -299,7 +299,11 @@ function addCostItem() {
   updatePrompt("Đã thêm hạng mục chi phí.");
 }
 
-costItemsContainer.addEventListener("input", () => {
+costItemsContainer.addEventListener("input", (event) => {
+  if (event.target.classList.contains("cost-item-amount")) {
+    formatCostInput(event.target);
+  }
+
   updateCostTotal();
   updatePrompt("Prompt tự động cập nhật.");
 });
@@ -351,6 +355,46 @@ function parseCostAmount(value) {
     .replace(/[^\d.-]/g, "");
   const amount = Number.parseFloat(normalized);
   return Number.isFinite(amount) ? amount : 0;
+}
+
+function formatCostInputValue(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+
+  const numericText = text.replace(/,/g, "");
+  if (!/^\d+(\.\d+)?$/.test(numericText)) return text;
+
+  const [integerPart, decimalPart] = numericText.split(".");
+  const formattedInteger = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0
+  }).format(Number(integerPart || 0));
+
+  return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+}
+
+function formatCostInput(input) {
+  const originalValue = input.value;
+  const originalCursor = input.selectionStart ?? originalValue.length;
+  const digitsBeforeCursor = originalValue.slice(0, originalCursor).replace(/\D/g, "").length;
+  const formattedValue = formatCostInputValue(originalValue);
+  input.value = formattedValue;
+
+  let cursor = formattedValue.length;
+  if (digitsBeforeCursor > 0) {
+    let seenDigits = 0;
+    cursor = formattedValue.length;
+    for (let index = 0; index < formattedValue.length; index += 1) {
+      if (/\d/.test(formattedValue[index])) {
+        seenDigits += 1;
+      }
+      if (seenDigits >= digitsBeforeCursor) {
+        cursor = index + 1;
+        break;
+      }
+    }
+  }
+
+  input.setSelectionRange(cursor, cursor);
 }
 
 function formatCurrency(value) {
