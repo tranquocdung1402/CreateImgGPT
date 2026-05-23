@@ -577,7 +577,7 @@ textarea:focus {
 .auto-final-table-head,
 .auto-final-row {
   display: grid;
-  grid-template-columns: 110px 110px minmax(0, 1fr) 42px;
+  grid-template-columns: 110px minmax(0, 1fr) 42px;
   gap: 10px;
   align-items: center;
 }
