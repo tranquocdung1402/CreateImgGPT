@@ -689,7 +689,8 @@ function buildPrompt() {
     `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
   ].filter(Boolean);
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
-  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages);
+  const stayRuleBlock = buildStayRuleBlock(get, includeHotel);
+  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages, stayRuleBlock);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
@@ -745,6 +746,8 @@ ${titleHintLine}
 - Tự tạo dòng phụ nhỏ hơn bằng tiếng Trung, ngắn gọn, giàu cảm xúc, bám nội dung lịch trình.
 ${subtitleHintLine}
 
+${stayRuleBlock}
+
 ${itineraryBlock}
 
 ${costBudgetBlock}
@@ -771,6 +774,27 @@ IMAGE QUALITY KEYWORDS:
 ${get("imageQuality")}
 
 Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+}
+
+function buildStayRuleBlock(get, includeHotel) {
+  const hotelName = get("hotelName");
+  const hotelCheckInText = includeHotel
+    ? "Check-in tại khách sạn " + hotelName + ". Khi viết bằng tiếng Trung, có thể ghi rõ tên khách sạn này."
+    : "Check-in tại khách sạn. Không nêu tên khách sạn cụ thể.";
+  const hotelCheckOutText = includeHotel
+    ? "Check-out tại khách sạn " + hotelName + ". Khi viết bằng tiếng Trung, có thể ghi rõ tên khách sạn này."
+    : "Check-out tại khách sạn. Không nêu tên khách sạn cụ thể.";
+
+  return [
+    "YÊU CẦU LƯU TRÚ / CHECK-IN CHECK-OUT:",
+    "- Khách lưu trú tại 1 khách sạn duy nhất trong toàn bộ lịch trình, không đổi khách sạn giữa tour.",
+    "- Toàn bộ lịch trình chỉ được có đúng 1 lần check-in và đúng 1 lần check-out.",
+    "- Không lặp lại check-in/check-out ở nhiều ngày khác nhau.",
+    "- Check-in chỉ xuất hiện ở ngày đầu tiên hoặc ngày nhận phòng hợp lý đầu tiên.",
+    "- Check-out chỉ xuất hiện ở ngày cuối cùng.",
+    "- " + hotelCheckInText,
+    "- " + hotelCheckOutText
+  ].join("\n");
 }
 
 function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost) {
@@ -808,7 +832,7 @@ function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, tota
   return lines.join("\n");
 }
 
-function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages) {
+function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages, stayRuleBlock) {
   const imageLayout = includeItineraryImages
     ? "- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày; mỗi ảnh có caption tiếng Trung màu vàng trên banner xanh đen mờ."
     : "- Không cần lưới ảnh/thumbnail trong từng ngày lịch trình. Ưu tiên timeline chữ rõ ràng, bố cục thoáng và dễ đọc.";
