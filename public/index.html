@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260523-auto-final-day" />
+    <link rel="stylesheet" href="styles.css?v=20260523-itinerary-image-mode" />
   </head>
   <body>
     <main class="app-shell">
@@ -220,9 +220,13 @@
                     <option value="image">Tham khảo ảnh lịch trình</option>
                   </select>
                 </label>
-                <label class="check-option">
-                  <input id="enableItineraryImages" name="enableItineraryImages" type="checkbox" />
-                  Thêm ảnh minh họa trong lịch trình
+                <label>
+                  Kiểu ảnh lịch trình
+                  <select id="itineraryImageMode" name="itineraryImageMode">
+                    <option value="single" selected>1 hình ảnh đại diện</option>
+                    <option value="quad">4 hình ảnh</option>
+                    <option value="none">Không dùng ảnh</option>
+                  </select>
                 </label>
                 <label id="scheduleImageField" class="hidden">
                   Ảnh lịch trình tham khảo
@@ -241,7 +245,7 @@
               <div id="imageItineraryFields" class="hidden">
                 <label>
                   Yêu cầu tham khảo ảnh lịch trình
-                  <textarea name="scheduleImageInstruction" rows="5">Tôi sẽ cung cấp một ảnh lịch trình riêng. Hãy dùng ảnh này làm nguồn dữ liệu chính và bắt buộc bám theo nội dung trong ảnh để tạo lại phần lịch trình trong brochure. Giữ đúng thứ tự ngày, số ngày, điểm đến, hoạt động, thời gian, khách sạn, golf/chi phí nếu có trong ảnh. Không tự thêm điểm đến, không tự thay đổi lịch trình, không tự thay bằng địa danh từ danh sách điểm đến chi tiết nếu ảnh không có. Chỉ được tối ưu câu chữ tiếng Trung, bố cục, icon và thumbnail cho đẹp hơn.</textarea>
+                  <textarea name="scheduleImageInstruction" rows="5">Tôi sẽ cung cấp một ảnh lịch trình riêng. Hãy dùng ảnh này làm nguồn dữ liệu chính và bắt buộc bám theo nội dung trong ảnh để tạo lại phần lịch trình trong brochure. Giữ đúng thứ tự ngày, số ngày, điểm đến, hoạt động, thời gian, khách sạn, golf/chi phí nếu có trong ảnh. Không tự thêm điểm đến, không tự thay đổi lịch trình, không tự thay bằng địa danh từ danh sách điểm đến chi tiết nếu ảnh không có. Chỉ được tối ưu câu chữ tiếng Trung, bố cục, icon và hình ảnh minh họa cho đẹp hơn.</textarea>
                 </label>
               </div>
               <div id="manualItineraryFields" class="hidden">
@@ -346,7 +350,7 @@
               </div>
               <label>
                 Ràng buộc xuất ảnh
-                <textarea name="technicalRequirements" rows="5">Tỷ lệ khung hình dọc dạng brochure dài, hiển thị đầy đủ nội dung, không cắt chữ hoặc hình ảnh, chữ Trung Quốc rõ ràng, không lỗi font, bố cục chia section riêng biệt, từng thumbnail có caption màu vàng trên banner xanh đen mờ.</textarea>
+                <textarea name="technicalRequirements" rows="5">Tỷ lệ khung hình dọc dạng brochure dài, hiển thị đầy đủ nội dung, không cắt chữ hoặc hình ảnh, chữ Trung Quốc rõ ràng, không lỗi font, bố cục chia section riêng biệt, hình ảnh minh họa sắc nét, bo góc nhẹ, không cần caption trên ảnh lịch trình.</textarea>
               </label>
             </section>
           </form>

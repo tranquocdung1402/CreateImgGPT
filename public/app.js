@@ -113,7 +113,7 @@ const manualItinerarySummary = document.querySelector("#manualItinerarySummary")
 const manualDaysContainer = document.querySelector("#manualDays");
 const scheduleImageField = document.querySelector("#scheduleImageField");
 const scheduleImageInput = document.querySelector("#scheduleImageInput");
-const enableItineraryImages = document.querySelector("#enableItineraryImages");
+const itineraryImageMode = document.querySelector("#itineraryImageMode");
 const enableGolf = document.querySelector("#enableGolf");
 const enableCost = document.querySelector("#enableCost");
 const enableHotel = document.querySelector("#enableHotel");
@@ -203,7 +203,7 @@ enableCost.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
-enableItineraryImages.addEventListener("change", () => {
+itineraryImageMode.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
@@ -666,7 +666,7 @@ function buildPrompt() {
   const useAutoItinerary = itineraryModeValue === "auto";
   const useImageItinerary = itineraryModeValue === "image";
   const useManualItinerary = itineraryModeValue === "manual";
-  const includeItineraryImages = data.get("enableItineraryImages") === "on";
+  const itineraryImageModeValue = get("itineraryImageMode") || "single";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
   const includeHotel = data.get("enableHotel") === "on";
@@ -687,7 +687,7 @@ function buildPrompt() {
   ].filter(Boolean);
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
   const stayRuleBlock = buildStayRuleBlock(get, includeHotel);
-  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages, stayRuleBlock);
+  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
@@ -727,7 +727,7 @@ Bố cục tổng thể:
 - Thiết kế sang trọng, hiện đại, dùng icon máy bay, khách sạn, nhà hàng, xe hơi, máy ảnh, đồng hồ, cáp treo, chùa.
 - Màu chủ đạo xanh sang trọng, gold, trắng và các màu sáng chuyên nghiệp.
 - Không dùng tông tối làm chủ đạo.
-- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Không dùng chữ quá nhỏ; timeline, giờ, hoạt động và caption phải đọc rõ trên ảnh dọc.
+- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Không dùng chữ quá nhỏ; timeline, giờ và hoạt động phải đọc rõ trên ảnh dọc.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
@@ -829,10 +829,44 @@ function buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, tota
   return lines.join("\n");
 }
 
-function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, includeItineraryImages, stayRuleBlock) {
-  const imageLayout = includeItineraryImages
-    ? "- Bên phải: lưới 4 ảnh thumbnail hình chữ nhật bo góc, ảnh thực tế sắc nét của địa danh trong ngày; mỗi ảnh có caption tiếng Trung màu vàng trên banner xanh đen mờ."
-    : "- Không cần lưới ảnh/thumbnail trong từng ngày lịch trình. Ưu tiên timeline chữ rõ ràng, bố cục thoáng và dễ đọc.";
+function buildItineraryImageLayout(mode) {
+  if (mode === "quad") {
+    return "- Bên phải: lưới 4 hình ảnh minh họa hình chữ nhật bo góc, ảnh thực tế sắc nét, đại diện cho các địa danh/hoạt động chính trong ngày; không cần caption.";
+  }
+
+  if (mode === "none") {
+    return "- Không cần ảnh minh họa trong từng ngày lịch trình. Ưu tiên timeline chữ rõ ràng, bố cục thoáng và dễ đọc.";
+  }
+
+  return "- Bên phải: 1 hình ảnh đại diện lớn, hình chữ nhật bo góc, ảnh thực tế sắc nét tượng trưng cho nội dung chính của ngày đó; không cần caption.";
+}
+
+function buildManualItineraryImageRule(mode) {
+  if (mode === "quad") {
+    return "- Nếu có ảnh minh họa, chọn đúng 4 hình ảnh phù hợp với từng ngày dựa trên địa danh/hoạt động tôi đã nhập; không cần caption.";
+  }
+
+  if (mode === "none") {
+    return "- Không yêu cầu ảnh minh họa trong từng ngày.";
+  }
+
+  return "- Nếu có ảnh minh họa, chọn 1 hình ảnh đại diện phù hợp với từng ngày dựa trên địa danh/hoạt động tôi đã nhập; không cần caption.";
+}
+
+function buildAutoItineraryImageRule(mode) {
+  if (mode === "quad") {
+    return "- Mỗi ngày dùng đúng 4 hình ảnh minh họa phù hợp với các địa danh/khách sạn/dịch vụ chính trong ngày; không cần caption.";
+  }
+
+  if (mode === "none") {
+    return "- Không yêu cầu ảnh minh họa trong từng ngày.";
+  }
+
+  return "- Mỗi ngày chỉ dùng 1 hình ảnh đại diện phù hợp nhất với địa danh/khách sạn/dịch vụ hoặc chủ đề chính của ngày đó; không dùng lưới 4 hình ảnh; không cần caption.";
+}
+
+function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock) {
+  const imageLayout = buildItineraryImageLayout(itineraryImageModeValue);
   const sharedLayout = `Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
@@ -864,7 +898,7 @@ Yêu cầu xử lý lịch trình tự viết:
 - Giữ đúng thứ tự ngày, mốc giờ và nội dung hoạt động chính tôi đã nhập.
 - Có thể biên tập câu chữ sang tiếng Trung Giản thể cho gọn, sang trọng và dễ đọc, nhưng không tự thay đổi logic di chuyển.
 - Nếu dòng nào chưa có giờ hoặc nội dung, hãy giữ bố cục hợp lý và không tự bịa thêm hoạt động quan trọng.
-${includeItineraryImages ? "- Nếu có ảnh minh họa, chọn thumbnail phù hợp với từng ngày dựa trên địa danh/hoạt động tôi đã nhập." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
+${buildManualItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, giữ đúng các buổi golf đã nhập và ghi rõ sân golf, thời gian tee-off nếu có, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
   }
@@ -897,7 +931,7 @@ Yêu cầu nội dung lịch trình:
 - Các mốc giờ tiếp theo trong ngày GPT tự lập phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
 - Ngày cuối phải hiển thị theo từng dòng thời gian bắt đầu dạng HH:MM từ timeline tôi nhập.
 - Mỗi ngày GPT tự lập phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
-${includeItineraryImages ? "- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
+${buildAutoItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
