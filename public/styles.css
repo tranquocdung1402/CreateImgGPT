@@ -540,6 +540,59 @@ textarea:focus {
   font-weight: 800;
 }
 
+.auto-final-day {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.auto-final-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.auto-final-day-header h3,
+.auto-final-day-header p {
+  margin: 0;
+}
+
+.auto-final-day-header h3 {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.auto-final-day-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auto-final-table-head,
+.auto-final-row {
+  display: grid;
+  grid-template-columns: 110px 110px minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+}
+
+.auto-final-table-head {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.auto-final-rows {
+  display: grid;
+  gap: 10px;
+}
+
 .manual-itinerary-header {
   display: flex;
   align-items: center;
@@ -846,6 +899,8 @@ textarea:focus {
   .cost-header,
   .cost-table-head,
   .cost-row,
+  .auto-final-table-head,
+  .auto-final-row,
   .manual-row {
     grid-template-columns: 1fr;
   }
@@ -864,6 +919,7 @@ textarea:focus {
     flex-direction: column;
   }
 
+  .auto-final-day-header,
   .manual-itinerary-header,
   .manual-day-title {
     align-items: stretch;

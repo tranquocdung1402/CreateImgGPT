@@ -93,6 +93,7 @@ const destinationGroupsData = [
 const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
 const autoStartTimes = document.querySelector("#autoStartTimes");
+const autoFinalDay = document.querySelector("#autoFinalDay");
 const destinationGroups = document.querySelector("#destinationGroups");
 const selectedDestinationDetails = document.querySelector("#selectedDestinationDetails");
 const costItemsContainer = document.querySelector("#costItems");
@@ -127,7 +128,7 @@ renderDestinationGroups();
 updateSelectedDestinationDetails();
 renderCostItems(defaultCostItems);
 renderItinerarySummary();
-renderAutoStartTimes();
+renderAutoItineraryControls();
 renderManualItinerary();
 renderOptionVisibility();
 promptOutput.value = buildPrompt();
@@ -135,7 +136,7 @@ promptOutput.value = buildPrompt();
 form.addEventListener("input", (event) => {
   if (event.target === durationInput || event.target === destinationInput) {
     renderItinerarySummary();
-    renderAutoStartTimes();
+    renderAutoItineraryControls();
     renderManualItinerary();
   }
 
@@ -150,7 +151,7 @@ document.querySelector("#generatePromptButton").addEventListener("click", () => 
 document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
   updateSelectedDestinationDetails();
-  renderAutoStartTimes({ reset: true });
+  renderAutoItineraryControls({ reset: true });
   renderCostItems(defaultCostItems);
   renderItinerarySummary();
   renderManualItinerary({ reset: true });
@@ -299,10 +300,22 @@ function renderItinerarySummary() {
   `;
 }
 
+function renderAutoItineraryControls(options = {}) {
+  renderAutoStartTimes(options);
+  renderAutoFinalDay(options);
+}
+
 function renderAutoStartTimes(options = {}) {
   const trip = parseDuration(durationInput.value);
   const existingTimes = options.reset ? [] : getAutoStartTimes();
-  const rows = Array.from({ length: trip.days }, (_, index) => {
+  const autoDays = Math.max(trip.days - 1, 0);
+
+  if (autoDays === 0) {
+    autoStartTimes.innerHTML = "";
+    return;
+  }
+
+  const rows = Array.from({ length: autoDays }, (_, index) => {
     const day = index + 1;
     const startTime = existingTimes[index]?.startTime || defaultAutoStartTime(day);
     return "<label class=\"auto-start-time\">" +
@@ -313,10 +326,67 @@ function renderAutoStartTimes(options = {}) {
 
   autoStartTimes.innerHTML =
     "<div class=\"auto-start-times-header\">" +
-    "<h3>Thời gian bắt đầu mỗi ngày</h3>" +
-    "<p>GPT sẽ tự lên lịch trình, nhưng bắt đầu timeline của từng ngày theo giờ bạn chọn.</p>" +
+    "<h3>Thời gian bắt đầu các ngày tự động</h3>" +
+    "<p>GPT sẽ tự lên lịch trình cho các ngày này theo giờ bắt đầu bạn chọn. Ngày cuối nhập timeline riêng bên dưới.</p>" +
     "</div>" +
     "<div class=\"auto-start-time-grid\">" + rows + "</div>";
+}
+
+function renderAutoFinalDay(options = {}) {
+  const trip = parseDuration(durationInput.value);
+  const existingRows = options.reset ? [] : getAutoFinalDayRows();
+  const rows = existingRows.length ? existingRows : defaultAutoFinalDayRows();
+
+  autoFinalDay.innerHTML =
+    "<div class=\"auto-final-day-header\">" +
+    "<div>" +
+    "<h3>Ngày cuối tự viết - 第" + trip.days + "天</h3>" +
+    "<p>Nhập timeline ngày cuối. Mỗi dòng gồm thời gian bắt đầu, thời gian kết thúc và nội dung hoạt động.</p>" +
+    "</div>" +
+    "<button class=\"secondary-button compact-button add-auto-final-row\" type=\"button\">+ Thêm mốc giờ</button>" +
+    "</div>" +
+    "<div class=\"auto-final-table-head\" aria-hidden=\"true\">" +
+    "<span>Bắt đầu</span><span>Kết thúc</span><span>Lịch trình</span><span></span>" +
+    "</div>" +
+    "<div class=\"auto-final-rows\">" + rows.map((row) => autoFinalRowTemplate(row)).join("") + "</div>";
+}
+
+function defaultAutoFinalDayRows() {
+  return [
+    { start: "08:30", end: "10:30", activity: "酒店享用早餐，整理行李并办理退房。" },
+    { start: "11:00", end: "12:30", activity: "安排轻松活动或自由购物。" },
+    { start: "13:00", end: "14:30", activity: "享用午餐。" },
+    { start: "15:00", end: "17:00", activity: "专车送往机场，结束行程。" }
+  ];
+}
+
+function autoFinalRowTemplate(row = {}) {
+  return "<div class=\"auto-final-row\">" +
+    "<input class=\"auto-final-start\" type=\"time\" value=\"" + escapeHtml(row.start || "") + "\" aria-label=\"Thời gian bắt đầu\" />" +
+    "<input class=\"auto-final-end\" type=\"time\" value=\"" + escapeHtml(row.end || "") + "\" aria-label=\"Thời gian kết thúc\" />" +
+    "<input class=\"auto-final-activity\" value=\"" + escapeHtml(row.activity || "") + "\" placeholder=\"Nhập lịch trình ngày cuối\" aria-label=\"Nội dung ngày cuối\" />" +
+    "<button class=\"icon-button remove-auto-final-row\" type=\"button\" aria-label=\"Xóa mốc giờ ngày cuối\">-</button>" +
+    "</div>";
+}
+
+function getAutoFinalDayRows() {
+  return [...autoFinalDay.querySelectorAll(".auto-final-row")]
+    .map((row) => ({
+      start: row.querySelector(".auto-final-start")?.value.trim() || "",
+      end: row.querySelector(".auto-final-end")?.value.trim() || "",
+      activity: row.querySelector(".auto-final-activity")?.value.trim() || ""
+    }))
+    .filter((row) => row.start || row.end || row.activity);
+}
+
+function formatAutoFinalDayForPrompt() {
+  const trip = parseDuration(durationInput.value);
+  const rows = getAutoFinalDayRows();
+  if (rows.length === 0) return "第" + trip.days + "天: Chưa nhập timeline ngày cuối.";
+
+  return "第" + trip.days + "天:\n" + rows
+    .map((row) => "  - " + (row.start || "未定开始") + "-" + (row.end || "未定结束") + " | " + (row.activity || "未填写活动内容"))
+    .join("\n");
 }
 
 function defaultAutoStartTime(day) {
@@ -335,7 +405,6 @@ function formatAutoStartTimesForPrompt() {
     .map((item) => `第${item.day}天: bắt đầu lịch trình từ ${item.startTime}`)
     .join("\n");
 }
-
 
 function renderManualItinerary(options = {}) {
   const trip = parseDuration(durationInput.value);
@@ -393,6 +462,32 @@ function manualRowTemplate(row = {}) {
     </div>
   `;
 }
+
+autoFinalDay.addEventListener("click", (event) => {
+  const addButton = event.target.closest(".add-auto-final-row");
+  if (addButton) {
+    autoFinalDay.querySelector(".auto-final-rows")?.insertAdjacentHTML("beforeend", autoFinalRowTemplate());
+    updatePrompt("Đã thêm mốc giờ ngày cuối.");
+    return;
+  }
+
+  const removeButton = event.target.closest(".remove-auto-final-row");
+  if (!removeButton) return;
+
+  const rowsContainer = removeButton.closest(".auto-final-rows");
+  const row = removeButton.closest(".auto-final-row");
+  if (!rowsContainer || !row) return;
+
+  if (rowsContainer.querySelectorAll(".auto-final-row").length <= 1) {
+    row.querySelector(".auto-final-start").value = "";
+    row.querySelector(".auto-final-end").value = "";
+    row.querySelector(".auto-final-activity").value = "";
+  } else {
+    row.remove();
+  }
+
+  updatePrompt("Đã xóa mốc giờ ngày cuối.");
+});
 
 manualDaysContainer.addEventListener("click", (event) => {
   const addButton = event.target.closest(".add-manual-row");
@@ -760,17 +855,23 @@ ${sharedLayout}
 Quy tắc tự động lập lịch trình:
 ${get("itineraryRules")}
 
-Thời gian bắt đầu lịch trình từng ngày:
+Thời gian bắt đầu các ngày GPT tự lập lịch trình:
 ${formatAutoStartTimesForPrompt()}
+
+Timeline ngày cuối do tôi nhập:
+${formatAutoFinalDayForPrompt()}
 
 Yêu cầu nội dung lịch trình:
 - Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
-- Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày.
+- Với các ngày từ 第1天 đến 第${Math.max(trip.days - 1, 1)}天, GPT tự lập lịch trình dựa trên điểm đến chi tiết và giờ bắt đầu đã nhập.
+- Riêng ngày cuối 第${trip.days}天, bắt buộc dùng timeline do tôi nhập; không tự thay đổi thời gian bắt đầu, thời gian kết thúc hoặc hoạt động chính.
+- Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày GPT tự lập.
 - Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
 - Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
-- Mỗi ngày phải bắt đầu timeline từ đúng giờ bắt đầu đã nhập cho ngày đó.
-- Các mốc giờ tiếp theo trong ngày phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
-- Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
+- Các ngày GPT tự lập phải bắt đầu timeline từ đúng giờ bắt đầu đã nhập cho ngày đó.
+- Các mốc giờ tiếp theo trong ngày GPT tự lập phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
+- Ngày cuối phải hiển thị theo từng dòng start-end dạng HH:MM-HH:MM từ timeline tôi nhập.
+- Mỗi ngày GPT tự lập phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
 ${includeItineraryImages ? "- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
@@ -947,14 +1048,18 @@ function buildItineraryExcelRows() {
     ]);
     rows.push([labelCell("Yêu cầu tham khảo ảnh"), cell(get("scheduleImageInstruction"))]);
   } else {
-    for (let index = 0; index < trip.days; index += 1) {
+    for (let index = 0; index < Math.max(trip.days - 1, 0); index += 1) {
       rows.push([
         labelCell(`第${index + 1}天`),
-        cell(`Tự lập timeline từ ${getAutoStartTimes()[index]?.startTime || defaultAutoStartTime(index + 1)} dựa trên điểm đến chi tiết, sân golf và logic di chuyển.`)
+        cell(`GPT tự lập timeline từ ${getAutoStartTimes()[index]?.startTime || defaultAutoStartTime(index + 1)} dựa trên điểm đến chi tiết, sân golf và logic di chuyển.`)
       ]);
     }
-  }
 
+    rows.push([
+      labelCell(`第${trip.days}天`),
+      cell(getAutoFinalDayRows().map((row) => `${row.start || "未定开始"}-${row.end || "未定结束"} | ${row.activity || "未填写活动内容"}`).join("\n") || "Chưa nhập timeline ngày cuối.")
+    ]);
+  }
   if (includeHotel) {
     rows.push(
       [],
