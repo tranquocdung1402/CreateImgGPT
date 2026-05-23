@@ -496,6 +496,50 @@ textarea:focus {
   font-size: 16px;
 }
 
+.auto-start-times {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.auto-start-times-header h3,
+.auto-start-times-header p {
+  margin: 0;
+}
+
+.auto-start-times-header h3 {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.auto-start-times-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auto-start-time-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.auto-start-time {
+  display: grid;
+  gap: 7px;
+}
+
+.auto-start-time span {
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .manual-itinerary-header {
   display: flex;
   align-items: center;
@@ -721,6 +765,10 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .auto-start-time-grid {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+
   .destination-groups {
     grid-template-columns: 1fr;
   }
@@ -772,6 +820,10 @@ textarea:focus {
   }
 
   .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .auto-start-time-grid {
     grid-template-columns: 1fr;
   }
 

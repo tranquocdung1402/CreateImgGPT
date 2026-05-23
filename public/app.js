@@ -92,6 +92,7 @@ const destinationGroupsData = [
 
 const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
+const autoStartTimes = document.querySelector("#autoStartTimes");
 const destinationGroups = document.querySelector("#destinationGroups");
 const selectedDestinationDetails = document.querySelector("#selectedDestinationDetails");
 const costItemsContainer = document.querySelector("#costItems");
@@ -126,6 +127,7 @@ renderDestinationGroups();
 updateSelectedDestinationDetails();
 renderCostItems(defaultCostItems);
 renderItinerarySummary();
+renderAutoStartTimes();
 renderManualItinerary();
 renderOptionVisibility();
 promptOutput.value = buildPrompt();
@@ -133,6 +135,7 @@ promptOutput.value = buildPrompt();
 form.addEventListener("input", (event) => {
   if (event.target === durationInput || event.target === destinationInput) {
     renderItinerarySummary();
+    renderAutoStartTimes();
     renderManualItinerary();
   }
 
@@ -147,6 +150,7 @@ document.querySelector("#generatePromptButton").addEventListener("click", () => 
 document.querySelector("#resetButton").addEventListener("click", () => {
   form.reset();
   updateSelectedDestinationDetails();
+  renderAutoStartTimes({ reset: true });
   renderCostItems(defaultCostItems);
   renderItinerarySummary();
   renderManualItinerary({ reset: true });
@@ -294,6 +298,44 @@ function renderItinerarySummary() {
     </div>
   `;
 }
+
+function renderAutoStartTimes(options = {}) {
+  const trip = parseDuration(durationInput.value);
+  const existingTimes = options.reset ? [] : getAutoStartTimes();
+  const rows = Array.from({ length: trip.days }, (_, index) => {
+    const day = index + 1;
+    const startTime = existingTimes[index]?.startTime || defaultAutoStartTime(day);
+    return "<label class=\"auto-start-time\">" +
+      "<span>第" + day + "天 bắt đầu</span>" +
+      "<input class=\"auto-start-time-input\" type=\"time\" value=\"" + escapeHtml(startTime) + "\" data-day=\"" + day + "\" aria-label=\"Giờ bắt đầu ngày " + day + "\" />" +
+      "</label>";
+  }).join("");
+
+  autoStartTimes.innerHTML =
+    "<div class=\"auto-start-times-header\">" +
+    "<h3>Thời gian bắt đầu mỗi ngày</h3>" +
+    "<p>GPT sẽ tự lên lịch trình, nhưng bắt đầu timeline của từng ngày theo giờ bạn chọn.</p>" +
+    "</div>" +
+    "<div class=\"auto-start-time-grid\">" + rows + "</div>";
+}
+
+function defaultAutoStartTime(day) {
+  return day === 1 ? "09:00" : "08:30";
+}
+
+function getAutoStartTimes() {
+  return [...autoStartTimes.querySelectorAll(".auto-start-time-input")].map((input, index) => ({
+    day: Number(input.dataset.day || index + 1),
+    startTime: input.value || defaultAutoStartTime(index + 1)
+  }));
+}
+
+function formatAutoStartTimesForPrompt() {
+  return getAutoStartTimes()
+    .map((item) => `第${item.day}天: bắt đầu lịch trình từ ${item.startTime}`)
+    .join("\n");
+}
+
 
 function renderManualItinerary(options = {}) {
   const trip = parseDuration(durationInput.value);
@@ -718,11 +760,16 @@ ${sharedLayout}
 Quy tắc tự động lập lịch trình:
 ${get("itineraryRules")}
 
+Thời gian bắt đầu lịch trình từng ngày:
+${formatAutoStartTimesForPrompt()}
+
 Yêu cầu nội dung lịch trình:
 - Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
 - Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày.
 - Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
 - Mỗi ngày cần có hoạt động sáng, trưa, chiều, tối nếu phù hợp với logic di chuyển.
+- Mỗi ngày phải bắt đầu timeline từ đúng giờ bắt đầu đã nhập cho ngày đó.
+- Các mốc giờ tiếp theo trong ngày phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
 - Mỗi ngày phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
 ${includeItineraryImages ? "- Mỗi ngày phải có đúng 4 thumbnail địa danh/khách sạn/dịch vụ phù hợp với nội dung ngày đó." : "- Không yêu cầu thumbnail ảnh trong từng ngày."}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
@@ -903,7 +950,7 @@ function buildItineraryExcelRows() {
     for (let index = 0; index < trip.days; index += 1) {
       rows.push([
         labelCell(`第${index + 1}天`),
-        cell("Tự lập timeline sáng/trưa/chiều/tối dựa trên điểm đến chi tiết, sân golf và logic di chuyển.")
+        cell(`Tự lập timeline từ ${getAutoStartTimes()[index]?.startTime || defaultAutoStartTime(index + 1)} dựa trên điểm đến chi tiết, sân golf và logic di chuyển.`)
       ]);
     }
   }
