@@ -907,9 +907,16 @@ function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, i
   const imageLayout = buildItineraryImageLayout(itineraryImageModeValue);
   const sharedLayout = `Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
 Trong mỗi khối ngày, chia 2 phần:
-- Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
-${imageLayout}
-- Font timeline: ${get("itineraryFontSize")}. Phần giờ/thời gian phải nhỏ hơn phần nội dung. Nội dung hoạt động tiếng Trung phải lớn, rõ, nổi bật hơn giờ; không thu nhỏ nội dung hoạt động để nhét chữ, nếu dài thì tăng chiều cao block hoặc xuống dòng.`;
+- Bên trái: timeline dọc theo bố cục bắt buộc, không dùng bullet list đơn giản.
+- Mỗi dòng timeline phải theo đúng thứ tự ngang: icon chức năng màu xanh navy lớn -> chấm tròn gold nhỏ -> giờ HH:MM -> vạch dọc màu xám nhạt -> nội dung hoạt động tiếng Trung.
+- Icon chức năng đặt ở cột ngoài cùng bên trái, kích thước 28-34px, rõ ràng và đồng bộ theo từng loại hoạt động.
+- Chấm tròn gold nhỏ nằm giữa icon và giờ, kích thước 5-7px.
+- Giờ HH:MM đặt bên phải chấm gold, font 20px, màu đen hoặc xám đậm, căn giữa theo chiều dọc với nội dung hoạt động.
+- Sau phần giờ bắt buộc có một vạch dọc màu xám nhạt để ngăn cách rõ ràng giữa thời gian và nội dung.
+- Nội dung hoạt động đặt bên phải vạch dọc, font 25-28px, màu xanh đậm hoặc đen, lớn hơn giờ, rõ ràng và dễ đọc.
+- Nội dung hoạt động không được thu nhỏ để nhét chữ; nếu câu dài thì tự động xuống dòng 2 dòng. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
+- Không đặt giờ và nội dung quá sát nhau; bắt buộc có khoảng trắng và vạch chia giữa giờ và nội dung.
+${imageLayout}`;
 
   if (itineraryModeValue === "image") {
     return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
