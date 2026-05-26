@@ -742,7 +742,6 @@ Bố cục tổng thể:
 - Nền tổng thể của brochure bắt buộc là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng.
 - Không dùng gold làm màu nền lớn; gold chỉ dùng cho viền, icon, tiêu đề hoặc chi tiết nhấn nhỏ.
 - Không dùng tông tối làm chủ đạo.
-- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Trong từng dòng timeline dạng "HH:MM : nội dung hoạt động", phần giờ HH:MM dùng 20px, còn phần nội dung hoạt động sau dấu : dùng 25px và phải nổi bật, dễ đọc. Không dùng chữ quá nhỏ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
@@ -910,7 +909,7 @@ function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, i
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
 ${imageLayout}
-- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}". Với mỗi dòng dạng "HH:MM : hoạt động", chỉ phần giờ HH:MM là 20px; phần hoạt động sau dấu : là 25px. Ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
+- Font timeline: ${get("itineraryFontSize")}. Phần giờ/thời gian phải nhỏ hơn phần nội dung. Nội dung hoạt động tiếng Trung phải lớn, rõ, nổi bật hơn giờ; không thu nhỏ nội dung hoạt động để nhét chữ, nếu dài thì tăng chiều cao block hoặc xuống dòng.`;
 
   if (itineraryModeValue === "image") {
     return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
