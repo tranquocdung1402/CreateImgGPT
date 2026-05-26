@@ -117,6 +117,8 @@ const itineraryImageMode = document.querySelector("#itineraryImageMode");
 const enableGolf = document.querySelector("#enableGolf");
 const enableCost = document.querySelector("#enableCost");
 const enableHotel = document.querySelector("#enableHotel");
+const enableWechatQr = document.querySelector("#enableWechatQr");
+const enableWhatsappQr = document.querySelector("#enableWhatsappQr");
 const golfFields = document.querySelector("#golfFields");
 const costMetaFields = document.querySelector("#costMetaFields");
 const costFields = document.querySelector("#costFields");
@@ -209,6 +211,14 @@ itineraryImageMode.addEventListener("change", () => {
 
 enableHotel.addEventListener("change", () => {
   renderOptionVisibility();
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+enableWechatQr.addEventListener("change", () => {
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+enableWhatsappQr.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
@@ -670,6 +680,8 @@ function buildPrompt() {
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
   const includeHotel = data.get("enableHotel") === "on";
+  const includeWechatQr = data.get("enableWechatQr") === "on";
+  const includeWhatsappQr = data.get("enableWhatsappQr") === "on";
   const titleHint = get("tourTitle");
   const subtitleHint = get("tourSubtitle");
   const titleHintLine = titleHint ? `- Gợi ý title nếu phù hợp: "${titleHint}"` : "- Không có gợi ý title cố định; tự tạo title tiếng Trung mới theo nội dung lịch trình.";
@@ -689,6 +701,7 @@ function buildPrompt() {
   const stayRuleBlock = buildStayRuleBlock(get, includeHotel);
   const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
+  const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
 - Tiêu đề: "${get("hotelTitle")}"
@@ -725,7 +738,9 @@ ${get("style")}
 Bố cục tổng thể:
 - Chia theo chiều dọc thành các section riêng biệt.
 - Thiết kế sang trọng, hiện đại, dùng icon máy bay, khách sạn, nhà hàng, xe hơi, máy ảnh, đồng hồ, cáp treo, chùa.
-- Màu chủ đạo xanh sang trọng, gold, trắng và các màu sáng chuyên nghiệp.
+- Màu chủ đạo xanh sang trọng, trắng sáng và gold làm điểm nhấn nhỏ.
+- Nền tổng thể của brochure bắt buộc là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng.
+- Không dùng gold làm màu nền lớn; gold chỉ dùng cho viền, icon, tiêu đề hoặc chi tiết nhấn nhỏ.
 - Không dùng tông tối làm chủ đạo.
 - Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Không dùng chữ quá nhỏ; timeline, giờ và hoạt động phải đọc rõ trên ảnh dọc.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
@@ -762,7 +777,8 @@ FOOTER:
 - Ở giữa: icon điện thoại + "咨询热线: ${get("hotline")}".
 - Ở giữa: icon địa điểm + "公司地址: ${get("address")}".
 - Bên phải: slogan thư pháp tiếng Trung "${get("slogan")}".
-- Footer chỉ có chữ, icon điện thoại và icon địa điểm như mô tả; tuyệt đối không đặt logo công ty, không dùng biểu tượng logo, không lặp lại hình ảnh logo ở Footer.
+- Footer chỉ có chữ, icon điện thoại, icon địa điểm và các QR được bật trong option; tuyệt đối không đặt logo công ty, không dùng biểu tượng logo, không lặp lại hình ảnh logo ở Footer.
+${footerQrBlock}
 
 YÊU CẦU KỸ THUẬT:
 ${get("technicalRequirements")}
@@ -771,6 +787,28 @@ IMAGE QUALITY KEYWORDS:
 ${get("imageQuality")}
 
 Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+}
+
+function buildFooterQrBlock(includeWechatQr, includeWhatsappQr) {
+  const lines = [];
+
+  if (includeWechatQr) {
+    lines.push("- QR WeChat: tôi sẽ upload ảnh QR WeChat kèm trong GPT; hãy tham khảo đúng ảnh QR đó, đặt ở footer, kích thước vừa phải, rõ nét, có nhãn WeChat.");
+  }
+
+  if (includeWhatsappQr) {
+    lines.push("- QR WhatsApp: tôi sẽ upload ảnh QR WhatsApp kèm trong GPT; hãy tham khảo đúng ảnh QR đó, đặt ở footer, kích thước vừa phải, rõ nét, có nhãn WhatsApp.");
+  }
+
+  if (lines.length === 0) {
+    return "- Không thêm mã QR ở footer.";
+  }
+
+  return [
+    "- Nếu thêm QR, đặt QR ở khu vực footer bên phải hoặc gần thông tin liên hệ, không che slogan/hotline/address.",
+    "- QR phải là mã vuông rõ nét, nền trắng, không bị méo, không bị cắt, không tự bịa nội dung QR.",
+    ...lines
+  ].join("\n");
 }
 
 function buildStayRuleBlock(get, includeHotel) {
