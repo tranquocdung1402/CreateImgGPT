@@ -114,6 +114,7 @@ const manualDaysContainer = document.querySelector("#manualDays");
 const scheduleImageField = document.querySelector("#scheduleImageField");
 const scheduleImageInput = document.querySelector("#scheduleImageInput");
 const itineraryImageMode = document.querySelector("#itineraryImageMode");
+const headerImageMode = document.querySelector("#headerImageMode");
 const enableGolf = document.querySelector("#enableGolf");
 const enableCost = document.querySelector("#enableCost");
 const enableHotel = document.querySelector("#enableHotel");
@@ -206,6 +207,10 @@ enableCost.addEventListener("change", () => {
 });
 
 itineraryImageMode.addEventListener("change", () => {
+  updatePrompt("Prompt tự động cập nhật.");
+});
+
+headerImageMode.addEventListener("change", () => {
   updatePrompt("Prompt tự động cập nhật.");
 });
 
@@ -702,6 +707,7 @@ function buildPrompt() {
   const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
+  const headerImagePrompt = buildHeaderImagePrompt(get);
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
 - Tiêu đề: "${get("hotelTitle")}"
@@ -748,8 +754,7 @@ HEADER:
 - Ảnh logo tham chiếu được cung cấp, ưu tiên giữ nguyên hình dáng, màu vàng, tỷ lệ, chi tiết và phong cách của logo tham chiếu; không tự sáng tạo logo mới.
 - ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
-- Ảnh nền header: ${get("headerImage")}
-- Ảnh header chọn một địa điểm nổi tiếng của Đà Nẵng phù hợp để làm hình quảng cáo, không cần cố định một địa danh cụ thể trong prompt.
+- Ảnh nền header: ${headerImagePrompt}
 - Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung lịch trình thực tế.
 ${titleHintLine}
 - Nếu lịch trình có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
@@ -789,6 +794,17 @@ IMAGE QUALITY KEYWORDS:
 ${get("imageQuality")}
 
 Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+}
+
+function buildHeaderImagePrompt(get) {
+  const mode = get("headerImageMode") || "single";
+  const customText = get("headerImage");
+
+  if (mode === "multi") {
+    return "GPT tự tạo một hình ảnh quảng cáo cao cấp tích hợp nhiều địa điểm du lịch nổi tiếng của Đà Nẵng trong cùng một visual hài hòa, ví dụ biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, Ngũ Hành Sơn, Bà Nà Hills, Cầu Vàng, Cầu Rồng, sông Hàn hoặc resort cao cấp. Bố cục phải tự nhiên, sang trọng, không ghép collage thô.";
+  }
+
+  return customText || "GPT tự tạo một hình ảnh quảng cáo cao cấp về một địa điểm du lịch nổi tiếng của Đà Nẵng.";
 }
 
 function buildFooterQrBlock(includeWechatQr, includeWhatsappQr) {
