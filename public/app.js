@@ -770,6 +770,8 @@ KHỐI DỊCH VỤ ĐƯA ĐÓN VIP:
 - Vị trí: cuối body, ngay phía trên footer.
 - Tiêu đề: "${get("vipTitle")}"
 - Hình ảnh minh họa: ${get("vipImages")}
+- Bắt buộc tạo thành một scene/ảnh thống nhất trong cùng một khung: xe limousine và hướng dẫn viên phải cùng xuất hiện trong một bối cảnh thật, có chiều sâu và background rõ ràng. Không đặt xe và người mẫu như 2 đối tượng rời rạc trên nền trống, không tách thành 2 thumbnail riêng, không dùng collage.
+- Background của ảnh VIP phải phù hợp dịch vụ đưa đón cao cấp: sân bay, sảnh resort/khách sạn 5 sao, driveway sang trọng hoặc phố biển Đà Nẵng tươi sáng.
 - Tiện ích kèm icon nhỏ: ${get("vipAmenities")}
 
 FOOTER:
