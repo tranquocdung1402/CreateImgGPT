@@ -742,7 +742,7 @@ Bố cục tổng thể:
 - Nền tổng thể của brochure bắt buộc là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng.
 - Không dùng gold làm màu nền lớn; gold chỉ dùng cho viền, icon, tiêu đề hoặc chi tiết nhấn nhỏ.
 - Không dùng tông tối làm chủ đạo.
-- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Tiêu đề ngày và nội dung chính trong block lịch trình tối thiểu 25px; riêng timeline, giờ HH:MM và nội dung hoạt động giữ 20px, rõ ràng và dễ đọc. Không dùng chữ quá nhỏ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font.
+- Kích cỡ chữ phần lịch trình: ${get("itineraryFontSize")}. Trong từng dòng timeline dạng "HH:MM : nội dung hoạt động", phần giờ HH:MM dùng 20px, còn phần nội dung hoạt động sau dấu : dùng 25px và phải nổi bật, dễ đọc. Không dùng chữ quá nhỏ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
@@ -750,7 +750,7 @@ HEADER:
 - ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${get("headerImage")}
-- Ảnh header không được cố định lặp lại một địa danh duy nhất; hãy tạo cảm giác quảng bá du lịch Đà Nẵng linh hoạt, có thể thay đổi phối cảnh và chọn các điểm nổi tiếng phù hợp với nội dung tour.
+- Ảnh header chọn một địa điểm nổi tiếng của Đà Nẵng phù hợp để làm hình quảng cáo, không cần cố định một địa danh cụ thể trong prompt.
 - Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung lịch trình thực tế.
 ${titleHintLine}
 - Nếu lịch trình có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
@@ -910,7 +910,7 @@ function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, i
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: bảng/danh sách timeline dọc. Mỗi dòng bắt đầu bằng icon chức năng nhỏ, tiếp theo là giờ HH:MM, cuối cùng là nội dung hoạt động ngắn gọn bằng tiếng Trung.
 ${imageLayout}
-- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}". Tiêu đề/ngày/nhãn chính tối thiểu 25px; timeline, giờ và hoạt động 20px. Ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
+- Font chữ trong các block lịch trình phải theo cấu hình "${get("itineraryFontSize")}". Với mỗi dòng dạng "HH:MM : hoạt động", chỉ phần giờ HH:MM là 20px; phần hoạt động sau dấu : là 25px. Ưu tiên độ rõ hơn số lượng chữ; nếu nội dung dài thì tăng chiều cao section thay vì giảm font quá nhỏ.`;
 
   if (itineraryModeValue === "image") {
     return `BODY - LỊCH TRÌNH (THAM KHẢO ẢNH):
