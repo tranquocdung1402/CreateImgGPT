@@ -797,7 +797,7 @@ Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố
 }
 
 function buildHeaderImagePrompt(get) {
-  const mode = get("headerImageMode") || "single";
+  const mode = get("headerImageMode") || "multi";
   const customText = get("headerImage");
 
   if (mode === "multi") {
