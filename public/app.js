@@ -1051,7 +1051,8 @@ Yêu cầu thiết kế cho 4 section:
 - Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
 - Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
 - Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
-- Nội dung chữ trong body phải rõ, không quá nhỏ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ.
+- Kích cỡ chữ trong body khám phá phải lấy theo tiêu chuẩn body lịch trình: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 25-28px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
+- Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
 
