@@ -732,7 +732,7 @@ function buildPrompt() {
       `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
     ].filter(Boolean)
     : [
-      "Không lập lịch trình theo ngày. Thay phần body lịch trình bằng nội dung khám phá du lịch Đà Nẵng theo các nhóm chủ đề được cung cấp.",
+      "Thiết kế phần body dạng city guide / destination highlights brochure về Đà Nẵng theo các nhóm chủ đề được cung cấp, không dùng dạng ngày/giờ.",
       `Tạo một hình ảnh ${get("imageType")} dạng brochure quảng bá du lịch dựa trên nội dung bên dưới.`
     ];
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
@@ -743,6 +743,21 @@ function buildPrompt() {
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
   const headerImagePrompt = buildHeaderImagePrompt(get);
+  const destinationContextLabel = useItineraryBody
+    ? useAutoItinerary
+      ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:"
+      : useImageItinerary
+        ? "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:"
+        : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ và gợi ý hình minh họa, không được thay đổi lịch trình tự viết:"
+    : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ cho hình ảnh và nội dung city guide:";
+  const directionLabel = useItineraryBody ? "Định hướng lịch trình:" : "Định hướng body city guide:";
+  const directionText = useItineraryBody
+    ? useAutoItinerary
+      ? get("tourBrief")
+      : useImageItinerary
+        ? "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng."
+        : "Bám theo lịch trình tự viết. Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không tự thay đổi nội dung chính."
+    : "Không dùng dạng itinerary. Tập trung quảng bá các điểm nổi bật, ẩm thực, hoạt động biển và nhà hàng hải sản của Đà Nẵng theo dạng brochure khám phá thành phố.";
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
 - Tiêu đề: "${get("hotelTitle")}"
@@ -765,11 +780,11 @@ ${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
 Điểm đến chính:
 ${get("destination")}
 
-${useAutoItinerary ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:" : useImageItinerary ? "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:" : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ và gợi ý hình minh họa, không được thay đổi lịch trình tự viết:"}
+${destinationContextLabel}
 ${get("destinationDetails")}
 
-Định hướng lịch trình:
-${useAutoItinerary ? get("tourBrief") : useImageItinerary ? "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng." : "Bám theo lịch trình tự viết. Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không tự thay đổi nội dung chính."}
+${directionLabel}
+${directionText}
 
 ${golfCostBlock}
 
@@ -1038,12 +1053,22 @@ function buildTourismBodyPromptBlock(get) {
   const sections = get("tourismBodySections") || "1. Các điểm đến du lịch nổi tiếng của Đà Nẵng\n2. Các món ăn đặc sản\n3. Các trò chơi trên biển\n4. Các quán ăn hải sản nổi tiếng";
 
   return `BODY - KHÁM PHÁ ĐÀ NẴNG:
-- Không thiết kế body theo lịch trình ngày/giờ. Không dùng các block 第1天, 第2天, timeline HH:MM hoặc lịch di chuyển.
-- Thay toàn bộ phần lịch trình bằng body dạng city guide / travel highlights / destination brochure về Đà Nẵng.
+- Đây là city guide / destination highlights brochure, không phải itinerary.
+- Không thiết kế body theo dạng ngày/giờ. Không dùng các block 第1天, 第2天, timeline HH:MM hoặc tuyến di chuyển.
+- Body dùng dạng city guide / travel highlights / destination brochure về Đà Nẵng.
 - Chia body thành 4 section lớn theo đúng cấu trúc dưới đây:
 ${sections}
 
+重要版式规则：
+- 本图不是固定短海报，而是超长竖版宣传册。请优先增加画布高度，而不是压缩内容。
+- 每个大 section 必须拥有充足留白，不能为了塞入内容而缩小卡片或缩小文字。
+- 4个主体 section 各自独立，占用相近高度。
+- 每个 section 的 6 个 card 必须大尺寸展示，3列×2行，图片高度充足，caption 清晰。
+- 左侧 section 编号 1/2/3/4 只作为小型装饰编号，不得过大，不得抢占标题视觉中心。
+- 如果空间不足，必须延长整张图片高度，而不是压缩文字、图片或间距。
+
 Yêu cầu thiết kế cho 4 section:
+- Thứ tự ưu tiên bắt buộc: kéo dài canvas > giữ card lớn > giữ chữ rõ > giữ khoảng cách thoáng > không nén layout.
 - 4 section body phải có kích thước và tỷ lệ đồng nhất với nhau. Không được để section 1 lớn, section 2 nhỏ hơn, section 3 nhỏ hơn nữa hoặc section 4 nhỏ nhất.
 - Mỗi section dùng cùng một layout, cùng chiều rộng, cùng chiều cao tối thiểu, cùng kích thước ảnh/card, cùng khoảng cách và cùng hệ thống font.
 - Brochure được phép kéo dài không giới hạn theo chiều dọc; hãy tăng chiều cao tổng thể của ảnh để giữ các section đồng nhất, tuyệt đối không bóp nhỏ các section phía dưới để nhét vào một chiều cao cố định.
@@ -1055,7 +1080,7 @@ Yêu cầu thiết kế cho 4 section:
 - Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
 - Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
 - Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
-- Kích cỡ chữ trong body khám phá phải lấy theo tiêu chuẩn body lịch trình: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 26-30px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
+- Kích cỡ chữ trong body khám phá: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 26-30px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
 - Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ. Nếu một section cần nhiều không gian hơn, tăng chiều cao tất cả 4 section theo cùng chuẩn để giữ đồng nhất.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
