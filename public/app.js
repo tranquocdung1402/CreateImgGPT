@@ -1079,6 +1079,8 @@ Yêu cầu thiết kế cho 4 section:
 - Section 2 - Món ăn đặc sản: gợi ý các món đặc trưng Đà Nẵng như mì Quảng, bánh tráng cuốn thịt heo, bún chả cá, bánh xèo, nem lụi, hải sản địa phương nếu phù hợp.
 - Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
 - Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
+- Quy tắc khóa ảnh cho Section 4: mỗi card quán hải sản chỉ được dùng ảnh liên quan trực tiếp đến nhà hàng hải sản, không gian quán ăn, bàn ăn hải sản, món hải sản, đầu bếp/nhân viên phục vụ hoặc biển hiệu/không gian ăn uống ven biển. Tuyệt đối không dùng ảnh phòng ngủ khách sạn, suite, spa, resort room, hồ bơi, sảnh lưu trú, xe đưa đón hoặc cảnh không liên quan đến ăn uống.
+- Nếu không có ảnh đúng của một quán cụ thể, dùng ảnh minh họa món hải sản/không gian nhà hàng hải sản phù hợp và không gắn sai hình ảnh khách sạn/lưu trú với tên quán. Tên quán và hình ảnh phải cùng ngữ cảnh nhà hàng hải sản.
 - Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
 - Kích cỡ chữ trong body khám phá: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 26-30px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
 - Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ. Nếu một section cần nhiều không gian hơn, tăng chiều cao tất cả 4 section theo cùng chuẩn để giữ đồng nhất.
