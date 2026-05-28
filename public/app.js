@@ -1062,20 +1062,23 @@ ${sections}
 重要版式规则：
 - 本图不是固定短海报，而是超长竖版宣传册。请优先增加画布高度，而不是压缩内容。
 - 每个大 section 必须拥有充足留白，不能为了塞入内容而缩小卡片或缩小文字。
-- 4个主体 section 各自独立，占用相近高度。
-- 每个 section 的 6 个 card 必须大尺寸展示，3列×2行，图片高度充足，caption 清晰。
+- 4个主体 section 各自独立，占用充足高度；Section 1 可以更高级、更有视觉焦点，但不能压缩 Section 2/3/4。
+- Section 1 使用高级不对称杂志式布局；Section 2/3/4 继续使用规则 3列×2行。所有图片高度充足，caption 清晰。
 - 左侧 section 编号 1/2/3/4 只作为小型装饰编号，不得过大，不得抢占标题视觉中心。
 - 如果空间不足，必须延长整张图片高度，而不是压缩文字、图片或间距。
 
 Yêu cầu thiết kế cho 4 section:
 - Thứ tự ưu tiên bắt buộc: kéo dài canvas > giữ card lớn > giữ chữ rõ > giữ khoảng cách thoáng > không nén layout.
-- 4 section body phải có kích thước và tỷ lệ đồng nhất với nhau. Không được để section 1 lớn, section 2 nhỏ hơn, section 3 nhỏ hơn nữa hoặc section 4 nhỏ nhất.
-- Mỗi section dùng cùng một layout, cùng chiều rộng, cùng chiều cao tối thiểu, cùng kích thước ảnh/card, cùng khoảng cách và cùng hệ thống font.
-- Brochure được phép kéo dài không giới hạn theo chiều dọc; hãy tăng chiều cao tổng thể của ảnh để giữ các section đồng nhất, tuyệt đối không bóp nhỏ các section phía dưới để nhét vào một chiều cao cố định.
+- 4 section body đều phải có không gian rộng và không bị nhỏ dần. Section 1 được phép nổi bật hơn về bố cục, nhưng tuyệt đối không được làm Section 2/3/4 bị thu nhỏ hoặc nén lại.
+- Brochure được phép kéo dài không giới hạn theo chiều dọc; hãy tăng chiều cao tổng thể của ảnh để giữ Section 2/3/4 rộng, thoáng, tuyệt đối không bóp nhỏ các section phía dưới để nhét vào một chiều cao cố định.
 - Mỗi section có tiêu đề lớn bằng tiếng Trung Giản thể, icon chủ đề rõ ràng và bố cục dạng card/grid sang trọng.
-- Mỗi section chọn đúng 6 nội dung tiêu biểu và trình bày thành grid 3 cột x 2 hàng: 3 ảnh/card trên một dòng, tổng 6 ảnh/card trong 2 dòng. Không dùng layout 5 ảnh/card trên một dòng.
-- Mỗi ảnh/card trong cả 4 section phải cùng kích thước, lớn, thoáng, có hình minh họa thực tế sắc nét hoặc icon phù hợp; caption/tên mục nằm rõ bên dưới hoặc trong card, không bị nhỏ.
-- Section 1 - Điểm đến du lịch nổi tiếng: chỉ tập trung các điểm nổi tiếng thuộc Đà Nẵng như biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, Ngũ Hành Sơn, Cầu Rồng, sông Hàn, Bà Nà Hills, Cầu Vàng hoặc resort cao cấp; không đưa Hội An/Quảng Nam vào section này nếu không được yêu cầu riêng.
+- Section 1 - Các điểm đến du lịch nổi bật: dùng premium asymmetric magazine layout, không dùng grid đều 6 ô. Tạo 1 hero destination card lớn chiếm khoảng 2 cột cho Bà Nà Hills / Cầu Vàng, kèm 5 supporting destination cards xung quanh.
+- Section 1 bắt buộc dùng đúng 6 địa điểm này, không thay bằng địa điểm khác: Bà Nà Hills / Cầu Vàng (巴拿山 / 金桥), Rừng dừa Bảy Mẫu (迦南岛椰林 / 竹篮船), Phố cổ Hội An (会安古城), Chùa Linh Ứng (灵应寺), Biển Mỹ Khê (美溪海滩), Núi Ngũ Hành Sơn (五行山).
+- Section 1 phải nổi bật hơn các section khác: larger premium white feature panel, refined gold corner ornaments, subtle blue header strip, elegant gold-blue badges như TOP精选 / 必打卡 / 云端奇景, và một discovery route line mảnh màu pale gold/blue phía sau các card. Route line chỉ tạo cảm giác khám phá, không hiển thị thời gian, không biến thành itinerary.
+- Ảnh Section 1 dùng cinematic luxury travel photography style: golden-hour lighting, aerial/wide-angle views khi phù hợp, realistic depth, premium resort travel mood, không dùng thumbnail stock chung chung.
+- Quy tắc khóa ảnh Section 1: mỗi card phải dùng ảnh đúng ngữ cảnh của địa điểm tương ứng. Bà Nà/Cầu Vàng dùng Cầu Vàng, cáp treo hoặc làng Pháp; Rừng dừa dùng thuyền thúng/rừng dừa nước; Hội An dùng phố cổ/đèn lồng; Linh Ứng dùng tượng Quan Âm hoặc chùa Sơn Trà; Mỹ Khê dùng biển xanh/bãi cát/resort biển; Ngũ Hành Sơn dùng núi đá/hang động/chùa.
+- Section 2/3/4 giữ layout đều như hiện tại: mỗi section chọn đúng 6 nội dung tiêu biểu và trình bày thành grid 3 cột x 2 hàng, 3 ảnh/card trên một dòng, tổng 6 ảnh/card trong 2 dòng. Không dùng layout 5 ảnh/card trên một dòng.
+- Mỗi ảnh/card trong Section 2/3/4 phải cùng kích thước, lớn, thoáng, có hình minh họa thực tế sắc nét hoặc icon phù hợp; caption/tên mục nằm rõ bên dưới hoặc trong card, không bị nhỏ.
 - Section 2 - Món ăn đặc sản: gợi ý các món đặc trưng Đà Nẵng như mì Quảng, bánh tráng cuốn thịt heo, bún chả cá, bánh xèo, nem lụi, hải sản địa phương nếu phù hợp.
 - Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
 - Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
