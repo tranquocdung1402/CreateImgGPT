@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260526-header-bg-multi-default" />
+    <link rel="stylesheet" href="styles.css?v=20260528-body-tabs" />
   </head>
   <body>
     <main class="app-shell">
@@ -216,54 +216,72 @@
             <section class="form-section">
               <div class="section-title">
                 <span>05</span>
-                <h2>Nội Dung Lịch Trình</h2>
+                <h2>Nội Dung Body</h2>
               </div>
-              <div class="grid two">
-                <label>
-                  Loại lịch trình
-                  <select id="itineraryMode" name="itineraryMode">
-                    <option value="auto" selected>Lịch trình tự động</option>
-                    <option value="manual">Lịch trình tự viết</option>
-                    <option value="image">Tham khảo ảnh lịch trình</option>
-                  </select>
-                </label>
-                <label>
-                  Kiểu ảnh lịch trình
-                  <select id="itineraryImageMode" name="itineraryImageMode">
-                    <option value="single" selected>1 hình ảnh đại diện</option>
-                    <option value="quad">4 hình ảnh</option>
-                    <option value="none">Không dùng ảnh</option>
-                  </select>
-                </label>
-                <label id="scheduleImageField" class="hidden">
-                  Ảnh lịch trình tham khảo
-                  <input id="scheduleImageInput" name="scheduleImage" type="file" accept="image/*" />
-                </label>
+              <input id="bodyContentMode" name="bodyContentMode" type="hidden" value="itinerary" />
+              <div class="content-tabs" role="tablist" aria-label="Chọn nội dung body">
+                <button class="content-tab active" type="button" role="tab" aria-selected="true" aria-controls="itineraryTabPanel" data-body-tab="itinerary">Lịch trình hiện tại</button>
+                <button class="content-tab" type="button" role="tab" aria-selected="false" aria-controls="tourismTabPanel" data-body-tab="tourism">Khám phá Đà Nẵng</button>
               </div>
-              <div id="autoItineraryFields">
-                <div class="itinerary-summary" id="itinerarySummary"></div>
-                <div class="auto-start-times" id="autoStartTimes"></div>
-                <div class="auto-final-day" id="autoFinalDay"></div>
-                <label>
-                  Quy tắc tạo lịch trình
-                  <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và điểm đến chi tiết, tự động lập lịch trình đầy đủ theo từng ngày. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày, tạo timeline với các mốc giờ HH:MM cho sáng/trưa/chiều/tối; mỗi dòng có icon chức năng nhỏ như đồng hồ, xe hơi, nhà hàng, máy ảnh.</textarea>
-                </label>
-              </div>
-              <div id="imageItineraryFields" class="hidden">
-                <label>
-                  Yêu cầu tham khảo ảnh lịch trình
-                  <textarea name="scheduleImageInstruction" rows="5">Tôi sẽ cung cấp một ảnh lịch trình riêng. Hãy dùng ảnh này làm nguồn dữ liệu chính và bắt buộc bám theo nội dung trong ảnh để tạo lại phần lịch trình trong brochure. Giữ đúng thứ tự ngày, số ngày, điểm đến, hoạt động, thời gian, khách sạn, golf/chi phí nếu có trong ảnh. Không tự thêm điểm đến, không tự thay đổi lịch trình, không tự thay bằng địa danh từ danh sách điểm đến chi tiết nếu ảnh không có. Chỉ được tối ưu câu chữ tiếng Trung, bố cục, icon và hình ảnh minh họa cho đẹp hơn.</textarea>
-                </label>
-              </div>
-              <div id="manualItineraryFields" class="hidden">
-                <div class="manual-itinerary-header">
-                  <div>
-                    <h3>Lịch trình tự viết</h3>
-                    <p id="manualItinerarySummary">Tự động tạo số ngày theo thời lượng tour.</p>
-                  </div>
-                  <button class="secondary-button compact-button" id="syncManualItineraryButton" type="button">Đồng bộ số ngày</button>
+
+              <div id="itineraryTabPanel" class="tab-panel" role="tabpanel">
+                <div class="grid two">
+                  <label>
+                    Loại lịch trình
+                    <select id="itineraryMode" name="itineraryMode">
+                      <option value="auto" selected>Lịch trình tự động</option>
+                      <option value="manual">Lịch trình tự viết</option>
+                      <option value="image">Tham khảo ảnh lịch trình</option>
+                    </select>
+                  </label>
+                  <label>
+                    Kiểu ảnh lịch trình
+                    <select id="itineraryImageMode" name="itineraryImageMode">
+                      <option value="single" selected>1 hình ảnh đại diện</option>
+                      <option value="quad">4 hình ảnh</option>
+                      <option value="none">Không dùng ảnh</option>
+                    </select>
+                  </label>
+                  <label id="scheduleImageField" class="hidden">
+                    Ảnh lịch trình tham khảo
+                    <input id="scheduleImageInput" name="scheduleImage" type="file" accept="image/*" />
+                  </label>
                 </div>
-                <div class="manual-days" id="manualDays"></div>
+                <div id="autoItineraryFields">
+                  <div class="itinerary-summary" id="itinerarySummary"></div>
+                  <div class="auto-start-times" id="autoStartTimes"></div>
+                  <div class="auto-final-day" id="autoFinalDay"></div>
+                  <label>
+                    Quy tắc tạo lịch trình
+                    <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và điểm đến chi tiết, tự động lập lịch trình đầy đủ theo từng ngày. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày, tạo timeline với các mốc giờ HH:MM cho sáng/trưa/chiều/tối; mỗi dòng có icon chức năng nhỏ như đồng hồ, xe hơi, nhà hàng, máy ảnh.</textarea>
+                  </label>
+                </div>
+                <div id="imageItineraryFields" class="hidden">
+                  <label>
+                    Yêu cầu tham khảo ảnh lịch trình
+                    <textarea name="scheduleImageInstruction" rows="5">Tôi sẽ cung cấp một ảnh lịch trình riêng. Hãy dùng ảnh này làm nguồn dữ liệu chính và bắt buộc bám theo nội dung trong ảnh để tạo lại phần lịch trình trong brochure. Giữ đúng thứ tự ngày, số ngày, điểm đến, hoạt động, thời gian, khách sạn, golf/chi phí nếu có trong ảnh. Không tự thêm điểm đến, không tự thay đổi lịch trình, không tự thay bằng địa danh từ danh sách điểm đến chi tiết nếu ảnh không có. Chỉ được tối ưu câu chữ tiếng Trung, bố cục, icon và hình ảnh minh họa cho đẹp hơn.</textarea>
+                  </label>
+                </div>
+                <div id="manualItineraryFields" class="hidden">
+                  <div class="manual-itinerary-header">
+                    <div>
+                      <h3>Lịch trình tự viết</h3>
+                      <p id="manualItinerarySummary">Tự động tạo số ngày theo thời lượng tour.</p>
+                    </div>
+                    <button class="secondary-button compact-button" id="syncManualItineraryButton" type="button">Đồng bộ số ngày</button>
+                  </div>
+                  <div class="manual-days" id="manualDays"></div>
+                </div>
+              </div>
+
+              <div id="tourismTabPanel" class="tab-panel hidden" role="tabpanel">
+                <label>
+                  Cấu trúc body khám phá Đà Nẵng
+                  <textarea name="tourismBodySections" rows="8">1. Các điểm đến du lịch nổi tiếng của Đà Nẵng
+2. Các món ăn đặc sản
+3. Các trò chơi trên biển
+4. Các quán ăn hải sản nổi tiếng</textarea>
+                </label>
               </div>
             </section>
 

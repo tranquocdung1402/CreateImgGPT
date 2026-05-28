@@ -289,6 +289,35 @@ button:disabled {
   font-size: 18px;
 }
 
+.content-tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  margin: 0 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f6faf8;
+}
+
+.content-tab {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: var(--green-dark);
+  font-weight: 800;
+}
+
+.content-tab.active {
+  background: var(--green);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 107, 93, 0.16);
+}
+
+.tab-panel {
+  display: grid;
+  gap: 14px;
+}
+
 .grid {
   display: grid;
   gap: 14px;

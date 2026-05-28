@@ -105,6 +105,10 @@ const downloadButton = document.querySelector("#downloadButton");
 const copyNotice = document.querySelector("#copyNotice");
 const durationInput = form.elements.duration;
 const destinationInput = form.elements.destination;
+const bodyContentModeInput = document.querySelector("#bodyContentMode");
+const bodyTabButtons = document.querySelectorAll("[data-body-tab]");
+const itineraryTabPanel = document.querySelector("#itineraryTabPanel");
+const tourismTabPanel = document.querySelector("#tourismTabPanel");
 const itineraryMode = document.querySelector("#itineraryMode");
 const autoItineraryFields = document.querySelector("#autoItineraryFields");
 const imageItineraryFields = document.querySelector("#imageItineraryFields");
@@ -133,6 +137,7 @@ renderCostItems(defaultCostItems);
 renderItinerarySummary();
 renderAutoItineraryControls();
 renderManualItinerary();
+renderBodyContentTabs();
 renderOptionVisibility();
 promptOutput.value = buildPrompt();
 
@@ -158,6 +163,7 @@ document.querySelector("#resetButton").addEventListener("click", () => {
   renderCostItems(defaultCostItems);
   renderItinerarySummary();
   renderManualItinerary({ reset: true });
+  renderBodyContentTabs("itinerary");
   scheduleImageName = "";
   renderOptionVisibility();
   logoDataUrl = "";
@@ -189,6 +195,13 @@ document.querySelector("#syncManualItineraryButton").addEventListener("click", (
   updatePrompt("Đã đồng bộ số ngày lịch trình tự viết.");
 });
 downloadButton.addEventListener("click", downloadImage);
+
+bodyTabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    renderBodyContentTabs(button.dataset.bodyTab || "itinerary");
+    updatePrompt("Prompt tự động cập nhật.");
+  });
+});
 
 itineraryMode.addEventListener("change", () => {
   renderOptionVisibility();
@@ -288,11 +301,24 @@ function cssEscape(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+function renderBodyContentTabs(mode = bodyContentModeInput.value || "itinerary") {
+  const normalizedMode = mode === "tourism" ? "tourism" : "itinerary";
+  bodyContentModeInput.value = normalizedMode;
+  itineraryTabPanel.classList.toggle("hidden", normalizedMode !== "itinerary");
+  tourismTabPanel.classList.toggle("hidden", normalizedMode !== "tourism");
+  bodyTabButtons.forEach((button) => {
+    const isActive = button.dataset.bodyTab === normalizedMode;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+}
+
 function renderOptionVisibility() {
+  const bodyMode = bodyContentModeInput.value || "itinerary";
   const mode = itineraryMode.value;
-  const useAutoItinerary = mode === "auto";
-  const useImageItinerary = mode === "image";
-  const useManualItinerary = mode === "manual";
+  const useAutoItinerary = bodyMode === "itinerary" && mode === "auto";
+  const useImageItinerary = bodyMode === "itinerary" && mode === "image";
+  const useManualItinerary = bodyMode === "itinerary" && mode === "manual";
   autoItineraryFields.classList.toggle("hidden", !useAutoItinerary);
   imageItineraryFields.classList.toggle("hidden", !useImageItinerary);
   manualItineraryFields.classList.toggle("hidden", !useManualItinerary);
@@ -677,10 +703,12 @@ function buildPrompt() {
   const get = (name) => String(data.get(name) || "").trim();
   const trip = parseDuration(get("duration"));
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
+  const bodyContentModeValue = get("bodyContentMode") || "itinerary";
+  const useItineraryBody = bodyContentModeValue === "itinerary";
   const itineraryModeValue = get("itineraryMode") || "auto";
-  const useAutoItinerary = itineraryModeValue === "auto";
-  const useImageItinerary = itineraryModeValue === "image";
-  const useManualItinerary = itineraryModeValue === "manual";
+  const useAutoItinerary = useItineraryBody && itineraryModeValue === "auto";
+  const useImageItinerary = useItineraryBody && itineraryModeValue === "image";
+  const useManualItinerary = useItineraryBody && itineraryModeValue === "manual";
   const itineraryImageModeValue = get("itineraryImageMode") || "single";
   const includeGolf = data.get("enableGolf") === "on";
   const includeCost = data.get("enableCost") === "on";
@@ -689,22 +717,29 @@ function buildPrompt() {
   const includeWhatsappQr = data.get("enableWhatsappQr") === "on";
   const titleHint = get("tourTitle");
   const subtitleHint = get("tourSubtitle");
-  const titleHintLine = titleHint ? `- Gợi ý title nếu phù hợp: "${titleHint}"` : "- Không có gợi ý title cố định; tự tạo title tiếng Trung mới theo nội dung lịch trình.";
-  const subtitleHintLine = subtitleHint ? `- Gợi ý subtitle nếu phù hợp: "${subtitleHint}"` : "- Không có gợi ý subtitle cố định; tự tạo subtitle tiếng Trung mới theo nội dung lịch trình.";
+  const titleHintLine = titleHint ? `- Gợi ý title nếu phù hợp: "${titleHint}"` : "- Không có gợi ý title cố định; tự tạo title tiếng Trung mới theo nội dung body.";
+  const subtitleHintLine = subtitleHint ? `- Gợi ý subtitle nếu phù hợp: "${subtitleHint}"` : "- Không có gợi ý subtitle cố định; tự tạo subtitle tiếng Trung mới theo nội dung body.";
   const costTable = formatCostItemsForPrompt();
   const totalCost = formatCurrency(calculateCostTotal());
-  const tasks = [
-    useAutoItinerary
-      ? `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`
-      : useImageItinerary
-        ? "Đọc ảnh lịch trình tham khảo được cung cấp và chuyển nội dung trong ảnh đó thành phần lịch trình của brochure."
-        : "Sử dụng lịch trình tự viết tôi đã nhập để tạo phần lịch trình của brochure.",
-    includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
-    `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
-  ].filter(Boolean);
+  const tasks = useItineraryBody
+    ? [
+      useAutoItinerary
+        ? `Lập lịch trình du lịch ${get("destination")} chi tiết cho ${get("duration")} theo dạng nghỉ dưỡng cao cấp.`
+        : useImageItinerary
+          ? "Đọc ảnh lịch trình tham khảo được cung cấp và chuyển nội dung trong ảnh đó thành phần lịch trình của brochure."
+          : "Sử dụng lịch trình tự viết tôi đã nhập để tạo phần lịch trình của brochure.",
+      includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
+      `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
+    ].filter(Boolean)
+    : [
+      "Không lập lịch trình theo ngày. Thay phần body lịch trình bằng nội dung khám phá du lịch Đà Nẵng theo các nhóm chủ đề được cung cấp.",
+      `Tạo một hình ảnh ${get("imageType")} dạng brochure quảng bá du lịch dựa trên nội dung bên dưới.`
+    ];
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
-  const stayRuleBlock = buildStayRuleBlock(get, includeHotel);
-  const itineraryBlock = buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock);
+  const stayRuleBlock = useItineraryBody ? buildStayRuleBlock(get, includeHotel) : "";
+  const bodyBlock = useItineraryBody
+    ? buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock)
+    : buildTourismBodyPromptBlock(get);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
   const headerImagePrompt = buildHeaderImagePrompt(get);
@@ -755,17 +790,17 @@ HEADER:
 - ${get("logoRequirements")}
 - Logo trong header phải là logo duy nhất trong toàn bộ ảnh. Không thêm, không lặp, không biến thể logo ở bất kỳ vị trí nào khác.
 - Ảnh nền header: ${headerImagePrompt}
-- Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung lịch trình thực tế.
+- Tự tạo tiêu đề lớn bằng tiếng Trung, màu vàng, dựa trên nội dung body thực tế.
 ${titleHintLine}
-- Nếu lịch trình có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
-- Nếu lịch trình không có golf, title phải nhấn mạnh chủ đề chính của lịch trình như nghỉ dưỡng biển, văn hóa, gia đình, luxury resort hoặc khám phá.
-- Không dùng title chung chung kiểu "5天4晚轻奢度假行程" nếu lịch trình có chủ đề rõ ràng.
-- Tự tạo dòng phụ nhỏ hơn bằng tiếng Trung, ngắn gọn, giàu cảm xúc, bám nội dung lịch trình.
+- Nếu nội dung có golf, title phải nhấn mạnh trải nghiệm golf cao cấp, nghe hấp dẫn và khác biệt hơn title du lịch chung.
+- Nếu nội dung không có golf, title phải nhấn mạnh chủ đề chính như khám phá Đà Nẵng, nghỉ dưỡng biển, văn hóa, gia đình, luxury resort hoặc ẩm thực.
+- Không dùng title chung chung kiểu "5天4晚轻奢度假行程" nếu nội dung có chủ đề rõ ràng.
+- Tự tạo dòng phụ nhỏ hơn bằng tiếng Trung, ngắn gọn, giàu cảm xúc, bám nội dung body.
 ${subtitleHintLine}
 
 ${stayRuleBlock}
 
-${itineraryBlock}
+${bodyBlock}
 
 ${costBudgetBlock}
 
@@ -996,6 +1031,27 @@ Yêu cầu nội dung lịch trình:
 - Mỗi ngày GPT tự lập phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
 ${buildAutoItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
+- Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
+}
+
+function buildTourismBodyPromptBlock(get) {
+  const sections = get("tourismBodySections") || "1. Các điểm đến du lịch nổi tiếng của Đà Nẵng\n2. Các món ăn đặc sản\n3. Các trò chơi trên biển\n4. Các quán ăn hải sản nổi tiếng";
+
+  return `BODY - KHÁM PHÁ ĐÀ NẴNG:
+- Không thiết kế body theo lịch trình ngày/giờ. Không dùng các block 第1天, 第2天, timeline HH:MM hoặc lịch di chuyển.
+- Thay toàn bộ phần lịch trình bằng body dạng city guide / travel highlights / destination brochure về Đà Nẵng.
+- Chia body thành 4 section lớn theo đúng cấu trúc dưới đây:
+${sections}
+
+Yêu cầu thiết kế cho 4 section:
+- Mỗi section có tiêu đề lớn bằng tiếng Trung Giản thể, icon chủ đề rõ ràng và bố cục dạng card/grid sang trọng.
+- Mỗi section chọn 4-6 nội dung tiêu biểu, trình bày bằng tiếng Trung ngắn gọn, dễ đọc, có ảnh minh họa thực tế hoặc icon phù hợp.
+- Section 1 - Điểm đến du lịch nổi tiếng: chỉ tập trung các điểm nổi tiếng thuộc Đà Nẵng như biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, Ngũ Hành Sơn, Cầu Rồng, sông Hàn, Bà Nà Hills, Cầu Vàng hoặc resort cao cấp; không đưa Hội An/Quảng Nam vào section này nếu không được yêu cầu riêng.
+- Section 2 - Món ăn đặc sản: gợi ý các món đặc trưng Đà Nẵng như mì Quảng, bánh tráng cuốn thịt heo, bún chả cá, bánh xèo, nem lụi, hải sản địa phương nếu phù hợp.
+- Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
+- Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
+- Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
+- Nội dung chữ trong body phải rõ, không quá nhỏ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
 
