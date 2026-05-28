@@ -1044,16 +1044,19 @@ function buildTourismBodyPromptBlock(get) {
 ${sections}
 
 Yêu cầu thiết kế cho 4 section:
+- 4 section body phải có kích thước và tỷ lệ đồng nhất với nhau. Không được để section 1 lớn, section 2 nhỏ hơn, section 3 nhỏ hơn nữa hoặc section 4 nhỏ nhất.
+- Mỗi section dùng cùng một layout, cùng chiều rộng, cùng chiều cao tối thiểu, cùng kích thước ảnh/card, cùng khoảng cách và cùng hệ thống font.
+- Brochure được phép kéo dài không giới hạn theo chiều dọc; hãy tăng chiều cao tổng thể của ảnh để giữ các section đồng nhất, tuyệt đối không bóp nhỏ các section phía dưới để nhét vào một chiều cao cố định.
 - Mỗi section có tiêu đề lớn bằng tiếng Trung Giản thể, icon chủ đề rõ ràng và bố cục dạng card/grid sang trọng.
 - Mỗi section chọn đúng 6 nội dung tiêu biểu và trình bày thành grid 3 cột x 2 hàng: 3 ảnh/card trên một dòng, tổng 6 ảnh/card trong 2 dòng. Không dùng layout 5 ảnh/card trên một dòng.
-- Mỗi ảnh/card phải lớn, thoáng, có hình minh họa thực tế sắc nét hoặc icon phù hợp; caption/tên mục nằm rõ bên dưới hoặc trong card, không bị nhỏ.
+- Mỗi ảnh/card trong cả 4 section phải cùng kích thước, lớn, thoáng, có hình minh họa thực tế sắc nét hoặc icon phù hợp; caption/tên mục nằm rõ bên dưới hoặc trong card, không bị nhỏ.
 - Section 1 - Điểm đến du lịch nổi tiếng: chỉ tập trung các điểm nổi tiếng thuộc Đà Nẵng như biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, Ngũ Hành Sơn, Cầu Rồng, sông Hàn, Bà Nà Hills, Cầu Vàng hoặc resort cao cấp; không đưa Hội An/Quảng Nam vào section này nếu không được yêu cầu riêng.
 - Section 2 - Món ăn đặc sản: gợi ý các món đặc trưng Đà Nẵng như mì Quảng, bánh tráng cuốn thịt heo, bún chả cá, bánh xèo, nem lụi, hải sản địa phương nếu phù hợp.
 - Section 3 - Trò chơi trên biển: gợi ý các hoạt động biển phù hợp du lịch nghỉ dưỡng như dù bay, mô tô nước, chèo SUP/kayak, lặn ngắm san hô, banana boat hoặc hoạt động bãi biển an toàn.
 - Section 4 - Quán ăn hải sản nổi tiếng: gợi ý theo hướng nhà hàng/quán hải sản nổi tiếng ở Đà Nẵng, không bịa địa chỉ chi tiết nếu không chắc chắn; ưu tiên tên dễ nhận diện và mô tả ngắn.
 - Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
 - Kích cỡ chữ trong body khám phá phải lấy theo tiêu chuẩn body lịch trình: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 26-30px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
-- Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ.
+- Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ. Nếu một section cần nhiều không gian hơn, tăng chiều cao tất cả 4 section theo cùng chuẩn để giữ đồng nhất.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
 
