@@ -746,7 +746,7 @@ function buildPrompt() {
     : useVisaBody
       ? [
         "Đọc ảnh bảng báo giá visa được cung cấp và chuyển chính xác nội dung bảng đó thành phần body brochure.",
-        `Tạo một hình ảnh ${get("imageType")} dạng brochure bảng giá visa dựa trên nội dung bên dưới.`
+        "Tạo một hình ảnh bảng báo giá visa dạng ngang rộng / wide landscape pricing table, ưu tiên đọc rõ toàn bộ bảng hơn bố cục dọc."
       ]
       : [
         "Thiết kế phần body dạng city guide / destination highlights brochure về Đà Nẵng theo các nhóm chủ đề được cung cấp, không dùng dạng ngày/giờ.",
@@ -762,6 +762,10 @@ function buildPrompt() {
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
   const headerImagePrompt = buildHeaderImagePrompt(get);
+  const technicalRequirementsBlock = useVisaBody
+    ? `${get("technicalRequirements")}
+- RIÊNG BODY BẢNG VISA: bỏ ràng buộc vertical brochure nếu gây bóp bảng. Hãy dùng canvas ngang rộng / wide landscape table, tỷ lệ gợi ý 16:9, 3:2 hoặc rộng hơn nếu cần. Ưu tiên chiều ngang thoải mái để bảng đủ cột, chữ rõ, không nén. Nếu cần thêm không gian, tăng chiều rộng và chiều cao canvas thay vì thu nhỏ font.`
+    : get("technicalRequirements");
   const destinationContextLabel = useItineraryBody
     ? useAutoItinerary
       ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:"
@@ -863,7 +867,7 @@ FOOTER:
 ${footerQrBlock}
 
 YÊU CẦU KỸ THUẬT:
-${get("technicalRequirements")}
+${technicalRequirementsBlock}
 
 IMAGE QUALITY KEYWORDS:
 ${get("imageQuality")}
@@ -1088,13 +1092,15 @@ Yêu cầu nhập liệu chính xác:
 - Không biến bảng visa thành lịch trình, city guide, danh sách địa điểm du lịch hoặc bảng chi phí tour.
 
 Yêu cầu thiết kế bảng visa:
-- Body là một bảng báo giá visa cao cấp, rõ ràng, chuyên nghiệp, dạng vertical brochure.
-- Bảng phải có header rõ, hàng/cột thẳng hàng, border mảnh, nền trắng sáng, điểm nhấn xanh navy/gold, không dùng nền vàng/kem.
-- Chữ trong bảng phải lớn và dễ đọc: tiêu đề bảng 38-44px, tiêu đề cột 30-34px, nội dung ô 28-32px, giá/số liệu quan trọng 32-36px, ghi chú tối thiểu 22px.
-- Nếu bảng có nhiều dòng/cột, hãy kéo dài canvas theo chiều dọc hoặc chia thành các block bảng liên tiếp; tuyệt đối không nén chữ nhỏ để nhét vào một trang ngắn.
-- Các con số và giá phải nổi bật, canh hàng rõ ràng, không bị cắt, không bị chồng chữ.
+- Body là một bảng báo giá visa cao cấp, rõ ràng, chuyên nghiệp, dạng wide landscape pricing table. Không ép bảng visa vào layout dọc hẹp.
+- Canvas phải có bề ngang thoải mái để hiển thị đủ tất cả cột giống ảnh Excel tham khảo. Ưu tiên tỷ lệ ngang 16:9, 3:2 hoặc ultra-wide nếu bảng nhiều cột.
+- Bảng phải chiếm gần toàn bộ chiều ngang canvas, có header rõ, hàng/cột thẳng hàng, border mảnh, nền trắng sáng, điểm nhấn xanh navy/gold, không dùng nền vàng/kem.
+- Chữ trong bảng phải lớn, sắc nét và dễ đọc: tiêu đề bảng 42-48px, tiêu đề cột 32-36px, nội dung ô 30-34px, giá/số liệu quan trọng 34-38px, ghi chú tối thiểu 24px.
+- Không scale nhỏ toàn bộ bảng. Không làm chữ mờ. Không dùng cột siêu hẹp. Không nén bảng vào giữa ảnh với nhiều khoảng trống hai bên.
+- Nếu bảng có nhiều dòng/cột, hãy tăng chiều rộng canvas trước, sau đó tăng chiều cao canvas nếu cần; tuyệt đối không nén chữ nhỏ để nhét vào một trang dọc.
+- Các con số và giá phải nổi bật, canh hàng rõ ràng, không bị cắt, không bị chồng chữ. Đường kẻ bảng phải sắc nét, tương phản rõ.
 - Nếu có ghi chú hoặc điều kiện visa, đặt trong block riêng dưới bảng, chữ rõ ràng, không nhỏ li ti.
-- Toàn bộ chữ phải hiển thị rõ, không lỗi font, không cắt nội dung.`;
+- Toàn bộ chữ phải sharp focus, high contrast, không lỗi font, không cắt nội dung. Ưu tiên độ đọc được của bảng hơn trang trí.`;
 }
 
 function buildTourismBodyPromptBlock(get) {
