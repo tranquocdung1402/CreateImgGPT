@@ -822,7 +822,7 @@ Bố cục tổng thể:
 - Nền tổng thể của brochure bắt buộc là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng.
 - Không dùng gold làm màu nền lớn; gold chỉ dùng cho viền, icon, tiêu đề hoặc chi tiết nhấn nhỏ.
 - Không dùng tông tối làm chủ đạo.
-- Quy tắc chữ body áp dụng cho mọi loại body: chữ phải lớn, rõ, dễ đọc; tiêu đề section nổi bật, nội dung chính tối thiểu 26-30px khi có thể, mô tả phụ không dưới 20px. Vì brochure có thể kéo dài không giới hạn, hãy tăng chiều cao canvas/section thay vì thu nhỏ chữ, ảnh hoặc khoảng cách.
+- Quy tắc chữ body áp dụng cho mọi loại body: chữ phải lớn, rõ, dễ đọc; tiêu đề section/header nổi bật; nội dung chính dùng 30-34px khi có thể; mô tả phụ không dưới 22px; bảng/cột/số liệu phải rõ ngang chuẩn infographic cao cấp. Vì brochure có thể kéo dài không giới hạn, hãy tăng chiều cao canvas/section thay vì thu nhỏ chữ, ảnh hoặc khoảng cách.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
@@ -1004,9 +1004,9 @@ Trong mỗi khối ngày, chia 2 phần:
 - Mỗi dòng timeline phải theo đúng thứ tự ngang: icon chức năng màu xanh navy lớn -> chấm tròn gold nhỏ -> giờ HH:MM -> vạch dọc màu xám nhạt -> nội dung hoạt động tiếng Trung.
 - Icon chức năng đặt ở cột ngoài cùng bên trái, kích thước 28-34px, rõ ràng và đồng bộ theo từng loại hoạt động.
 - Chấm tròn gold nhỏ nằm giữa icon và giờ, kích thước 5-7px.
-- Giờ HH:MM đặt bên phải chấm gold, font 20px, màu đen hoặc xám đậm, căn giữa theo chiều dọc với nội dung hoạt động.
+- Giờ HH:MM đặt bên phải chấm gold, font 24px, màu đen hoặc xám đậm, căn giữa theo chiều dọc với nội dung hoạt động.
 - Sau phần giờ bắt buộc có một vạch dọc màu xám nhạt để ngăn cách rõ ràng giữa thời gian và nội dung.
-- Nội dung hoạt động đặt bên phải vạch dọc, font 25-28px, màu xanh đậm hoặc đen, lớn hơn giờ, rõ ràng và dễ đọc.
+- Nội dung hoạt động đặt bên phải vạch dọc, font 30-34px, màu xanh đậm hoặc đen, lớn hơn giờ, rõ ràng và dễ đọc.
 - Nội dung hoạt động không được thu nhỏ để nhét chữ; nếu câu dài thì tự động xuống dòng 2 dòng. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
 - Không đặt giờ và nội dung quá sát nhau; bắt buộc có khoảng trắng và vạch chia giữa giờ và nội dung.
 ${imageLayout}`;
@@ -1090,7 +1090,7 @@ Yêu cầu nhập liệu chính xác:
 Yêu cầu thiết kế bảng visa:
 - Body là một bảng báo giá visa cao cấp, rõ ràng, chuyên nghiệp, dạng vertical brochure.
 - Bảng phải có header rõ, hàng/cột thẳng hàng, border mảnh, nền trắng sáng, điểm nhấn xanh navy/gold, không dùng nền vàng/kem.
-- Chữ trong bảng phải lớn và dễ đọc: tiêu đề bảng 34-40px, tiêu đề cột 26-30px, nội dung ô 24-28px, ghi chú tối thiểu 20px.
+- Chữ trong bảng phải lớn và dễ đọc: tiêu đề bảng 38-44px, tiêu đề cột 30-34px, nội dung ô 28-32px, giá/số liệu quan trọng 32-36px, ghi chú tối thiểu 22px.
 - Nếu bảng có nhiều dòng/cột, hãy kéo dài canvas theo chiều dọc hoặc chia thành các block bảng liên tiếp; tuyệt đối không nén chữ nhỏ để nhét vào một trang ngắn.
 - Các con số và giá phải nổi bật, canh hàng rõ ràng, không bị cắt, không bị chồng chữ.
 - Nếu có ghi chú hoặc điều kiện visa, đặt trong block riêng dưới bảng, chữ rõ ràng, không nhỏ li ti.
@@ -1133,7 +1133,7 @@ Yêu cầu thiết kế cho 4 section:
 - Quy tắc khóa ảnh cho Section 4: mỗi card quán hải sản chỉ được dùng ảnh liên quan trực tiếp đến nhà hàng hải sản, không gian quán ăn, bàn ăn hải sản, món hải sản, đầu bếp/nhân viên phục vụ hoặc biển hiệu/không gian ăn uống ven biển. Tuyệt đối không dùng ảnh phòng ngủ khách sạn, suite, spa, resort room, hồ bơi, sảnh lưu trú, xe đưa đón hoặc cảnh không liên quan đến ăn uống.
 - Nếu không có ảnh đúng của một quán cụ thể, dùng ảnh minh họa món hải sản/không gian nhà hàng hải sản phù hợp và không gắn sai hình ảnh khách sạn/lưu trú với tên quán. Tên quán và hình ảnh phải cùng ngữ cảnh nhà hàng hải sản.
 - Bố cục tổng thể phải sáng, trắng, xanh sang trọng và gold làm điểm nhấn nhỏ; không dùng nền vàng/kem.
-- Kích cỡ chữ trong body khám phá: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 26-30px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 20px. Không dùng chữ nhỏ li ti.
+- Kích cỡ chữ trong body khám phá: tiêu đề section lớn và nổi bật; tên điểm đến/món ăn/hoạt động/quán hải sản dùng font 30-34px, rõ ràng và dễ đọc. Mô tả phụ có thể nhỏ hơn nhưng không dưới 22px. Không dùng chữ nhỏ li ti.
 - Nội dung chữ trong body phải rõ; nếu nội dung dài thì tăng chiều cao section hoặc xuống dòng, không cắt chữ, không thu nhỏ font để nhét chữ. Nếu một section cần nhiều không gian hơn, tăng chiều cao tất cả 4 section theo cùng chuẩn để giữ đồng nhất.
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
 }
