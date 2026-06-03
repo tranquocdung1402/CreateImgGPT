@@ -291,6 +291,7 @@ button:disabled {
 
 .content-tabs {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 4px;
   margin: 0 0 16px;

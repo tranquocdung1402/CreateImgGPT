@@ -1,6 +1,7 @@
 let logoDataUrl = "";
 let currentImageDataUrl = "";
 let scheduleImageName = "";
+let visaImageName = "";
 
 const defaultCostItems = [
   {
@@ -109,6 +110,7 @@ const bodyContentModeInput = document.querySelector("#bodyContentMode");
 const bodyTabButtons = document.querySelectorAll("[data-body-tab]");
 const itineraryTabPanel = document.querySelector("#itineraryTabPanel");
 const tourismTabPanel = document.querySelector("#tourismTabPanel");
+const visaTabPanel = document.querySelector("#visaTabPanel");
 const itineraryMode = document.querySelector("#itineraryMode");
 const autoItineraryFields = document.querySelector("#autoItineraryFields");
 const imageItineraryFields = document.querySelector("#imageItineraryFields");
@@ -117,6 +119,7 @@ const manualItinerarySummary = document.querySelector("#manualItinerarySummary")
 const manualDaysContainer = document.querySelector("#manualDays");
 const scheduleImageField = document.querySelector("#scheduleImageField");
 const scheduleImageInput = document.querySelector("#scheduleImageInput");
+const visaImageInput = document.querySelector("#visaImageInput");
 const itineraryImageMode = document.querySelector("#itineraryImageMode");
 const headerImageMode = document.querySelector("#headerImageMode");
 const enableGolf = document.querySelector("#enableGolf");
@@ -165,6 +168,7 @@ document.querySelector("#resetButton").addEventListener("click", () => {
   renderManualItinerary({ reset: true });
   renderBodyContentTabs("itinerary");
   scheduleImageName = "";
+  visaImageName = "";
   renderOptionVisibility();
   logoDataUrl = "";
   currentImageDataUrl = "";
@@ -245,6 +249,11 @@ scheduleImageInput.addEventListener("change", (event) => {
   updatePrompt(scheduleImageName ? "Đã nạp tên ảnh lịch trình tham khảo." : "Prompt tự động cập nhật.");
 });
 
+visaImageInput.addEventListener("change", (event) => {
+  visaImageName = event.target.files?.[0]?.name || "";
+  updatePrompt(visaImageName ? "Đã nạp tên ảnh bảng báo giá visa." : "Prompt tự động cập nhật.");
+});
+
 destinationGroups.addEventListener("change", (event) => {
   if (!event.target.classList.contains("destination-checkbox")) return;
   updateSelectedDestinationDetails();
@@ -302,10 +311,11 @@ function cssEscape(value) {
 }
 
 function renderBodyContentTabs(mode = bodyContentModeInput.value || "itinerary") {
-  const normalizedMode = mode === "tourism" ? "tourism" : "itinerary";
+  const normalizedMode = ["itinerary", "tourism", "visa"].includes(mode) ? mode : "itinerary";
   bodyContentModeInput.value = normalizedMode;
   itineraryTabPanel.classList.toggle("hidden", normalizedMode !== "itinerary");
   tourismTabPanel.classList.toggle("hidden", normalizedMode !== "tourism");
+  visaTabPanel.classList.toggle("hidden", normalizedMode !== "visa");
   bodyTabButtons.forEach((button) => {
     const isActive = button.dataset.bodyTab === normalizedMode;
     button.classList.toggle("active", isActive);
@@ -705,6 +715,8 @@ function buildPrompt() {
   const daySections = Array.from({ length: trip.days }, (_, index) => `第${index + 1}天`).join(", ");
   const bodyContentModeValue = get("bodyContentMode") || "itinerary";
   const useItineraryBody = bodyContentModeValue === "itinerary";
+  const useTourismBody = bodyContentModeValue === "tourism";
+  const useVisaBody = bodyContentModeValue === "visa";
   const itineraryModeValue = get("itineraryMode") || "auto";
   const useAutoItinerary = useItineraryBody && itineraryModeValue === "auto";
   const useImageItinerary = useItineraryBody && itineraryModeValue === "image";
@@ -731,15 +743,22 @@ function buildPrompt() {
       includeGolf || includeCost ? "Tích hợp đầy đủ các yêu cầu Golf/Chi phí đang được bật vào lịch trình và bố cục ảnh." : "",
       `Từ nội dung đó, tạo một hình ảnh ${get("imageType")} dựa trên nội dung bên dưới.`
     ].filter(Boolean)
-    : [
-      "Thiết kế phần body dạng city guide / destination highlights brochure về Đà Nẵng theo các nhóm chủ đề được cung cấp, không dùng dạng ngày/giờ.",
-      `Tạo một hình ảnh ${get("imageType")} dạng brochure quảng bá du lịch dựa trên nội dung bên dưới.`
-    ];
+    : useVisaBody
+      ? [
+        "Đọc ảnh bảng báo giá visa được cung cấp và chuyển chính xác nội dung bảng đó thành phần body brochure.",
+        `Tạo một hình ảnh ${get("imageType")} dạng brochure bảng giá visa dựa trên nội dung bên dưới.`
+      ]
+      : [
+        "Thiết kế phần body dạng city guide / destination highlights brochure về Đà Nẵng theo các nhóm chủ đề được cung cấp, không dùng dạng ngày/giờ.",
+        `Tạo một hình ảnh ${get("imageType")} dạng brochure quảng bá du lịch dựa trên nội dung bên dưới.`
+      ];
   const golfCostBlock = buildGolfCostPromptBlock(get, includeGolf, includeCost, costTable, totalCost);
   const stayRuleBlock = useItineraryBody ? buildStayRuleBlock(get, includeHotel) : "";
   const bodyBlock = useItineraryBody
     ? buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock)
-    : buildTourismBodyPromptBlock(get);
+    : useVisaBody
+      ? buildVisaBodyPromptBlock(get)
+      : buildTourismBodyPromptBlock(get);
   const costBudgetBlock = includeCost ? buildCostBudgetPromptBlock(get, totalCost) : "";
   const footerQrBlock = buildFooterQrBlock(includeWechatQr, includeWhatsappQr);
   const headerImagePrompt = buildHeaderImagePrompt(get);
@@ -749,15 +768,19 @@ function buildPrompt() {
       : useImageItinerary
         ? "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:"
         : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ và gợi ý hình minh họa, không được thay đổi lịch trình tự viết:"
-    : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ cho hình ảnh và nội dung city guide:";
-  const directionLabel = useItineraryBody ? "Định hướng lịch trình:" : "Định hướng body city guide:";
+    : useVisaBody
+      ? "Điểm đến chính chỉ dùng làm ngữ cảnh thương hiệu/du lịch, không dùng để thay đổi nội dung bảng visa:"
+      : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ cho hình ảnh và nội dung city guide:";
+  const directionLabel = useItineraryBody ? "Định hướng lịch trình:" : useVisaBody ? "Định hướng body bảng visa:" : "Định hướng body city guide:";
   const directionText = useItineraryBody
     ? useAutoItinerary
       ? get("tourBrief")
       : useImageItinerary
         ? "Bám theo ảnh lịch trình tham khảo. Không tự chọn và phân bổ địa danh nếu ảnh lịch trình đã có nội dung rõ ràng."
         : "Bám theo lịch trình tự viết. Chỉ tối ưu câu chữ tiếng Trung, bố cục, icon và hình minh họa; không tự thay đổi nội dung chính."
-    : "Không dùng dạng itinerary. Tập trung quảng bá các điểm nổi bật, ẩm thực, hoạt động biển và nhà hàng hải sản của Đà Nẵng theo dạng brochure khám phá thành phố.";
+    : useVisaBody
+      ? "Bám theo ảnh bảng báo giá visa. Nội dung bảng, số liệu, thứ tự hàng/cột và ghi chú trong ảnh là nguồn chính; không tự thay đổi hoặc suy đoán."
+      : "Không dùng dạng itinerary. Tập trung quảng bá các điểm nổi bật, ẩm thực, hoạt động biển và nhà hàng hải sản của Đà Nẵng theo dạng brochure khám phá thành phố.";
   const hotelBlock = includeHotel ? `KHỐI KHÁCH SẠN:
 - Vị trí: gần cuối body.
 - Tiêu đề: "${get("hotelTitle")}"
@@ -773,6 +796,7 @@ QUY TẮC ƯU TIÊN TÀI LIỆU THAM CHIẾU:
 - Nếu tôi upload ảnh logo, hãy dùng ảnh logo đó làm nguồn duy nhất cho logo. Không tự vẽ lại logo, không đổi màu, không đổi tỷ lệ, không tạo logo mới.
 ${useImageItinerary ? "- Nếu tôi upload ảnh lịch trình, hãy dùng ảnh lịch trình đó làm nguồn chính cho nội dung lịch trình. Không tự lập lịch trình mới và không tự thêm địa điểm không có trong ảnh." : ""}
 ${useManualItinerary ? "- Nếu tôi nhập lịch trình tự viết, hãy dùng lịch trình đó làm nguồn chính. Không tự thay đổi thứ tự ngày, mốc giờ hoặc hoạt động chính." : ""}
+${useVisaBody ? "- Nếu tôi upload ảnh bảng báo giá visa, hãy dùng ảnh đó làm nguồn chính và duy nhất cho toàn bộ nội dung bảng visa. Không tự tạo giá, không tự sửa giá, không tự thêm dòng/cột." : ""}
 
 Nhiệm vụ:
 ${tasks.map((task, index) => `${index + 1}. ${task}`).join("\n")}
@@ -798,6 +822,7 @@ Bố cục tổng thể:
 - Nền tổng thể của brochure bắt buộc là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng.
 - Không dùng gold làm màu nền lớn; gold chỉ dùng cho viền, icon, tiêu đề hoặc chi tiết nhấn nhỏ.
 - Không dùng tông tối làm chủ đạo.
+- Quy tắc chữ body áp dụng cho mọi loại body: chữ phải lớn, rõ, dễ đọc; tiêu đề section nổi bật, nội dung chính tối thiểu 26-30px khi có thể, mô tả phụ không dưới 20px. Vì brochure có thể kéo dài không giới hạn, hãy tăng chiều cao canvas/section thay vì thu nhỏ chữ, ảnh hoặc khoảng cách.
 ${includeCost ? `- Kích cỡ chữ phần chi phí: ${get("costFontSize")}. Bảng chi phí, hạng mục, chi tiết, số tiền và TOTAL phải nổi bật, dễ đọc, không bị chen chúc.` : ""}
 
 HEADER:
@@ -1047,6 +1072,29 @@ Yêu cầu nội dung lịch trình:
 ${buildAutoItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
+}
+
+function buildVisaBodyPromptBlock(get) {
+  return `BODY - BẢNG BÁO GIÁ VISA:
+- Tôi sẽ cung cấp một ảnh bảng báo giá visa. Ảnh này là nguồn dữ liệu chính và có ưu tiên cao nhất.
+${visaImageName ? `- Tên file ảnh bảng báo giá visa tham khảo: ${visaImageName}` : "- Ảnh bảng báo giá visa sẽ được upload kèm trong GPT."}
+- ${get("visaImageInstruction")}
+
+Yêu cầu nhập liệu chính xác:
+- Bắt buộc đọc và nhập lại chính xác toàn bộ nội dung chính trong ảnh: tiêu đề bảng, tên loại visa, số ngày, số lần nhập cảnh, điều kiện, thời gian xử lý, giá, đơn vị tiền, ghi chú, thứ tự hàng/cột và mọi con số.
+- Không tự thêm gói visa, không tự sửa tên gói, không tự đổi giá, không tự đổi đơn vị tiền, không tự suy đoán dữ liệu bị thiếu.
+- Nếu chi tiết nào trong ảnh không đọc rõ, ghi "需确认" tại đúng ô đó thay vì tự bịa.
+- Giữ đúng cấu trúc bảng từ ảnh gốc nhiều nhất có thể; nếu cần tối ưu thiết kế thì chỉ tối ưu spacing, border, màu sắc, icon và phân nhóm, không thay đổi dữ liệu.
+- Không biến bảng visa thành lịch trình, city guide, danh sách địa điểm du lịch hoặc bảng chi phí tour.
+
+Yêu cầu thiết kế bảng visa:
+- Body là một bảng báo giá visa cao cấp, rõ ràng, chuyên nghiệp, dạng vertical brochure.
+- Bảng phải có header rõ, hàng/cột thẳng hàng, border mảnh, nền trắng sáng, điểm nhấn xanh navy/gold, không dùng nền vàng/kem.
+- Chữ trong bảng phải lớn và dễ đọc: tiêu đề bảng 34-40px, tiêu đề cột 26-30px, nội dung ô 24-28px, ghi chú tối thiểu 20px.
+- Nếu bảng có nhiều dòng/cột, hãy kéo dài canvas theo chiều dọc hoặc chia thành các block bảng liên tiếp; tuyệt đối không nén chữ nhỏ để nhét vào một trang ngắn.
+- Các con số và giá phải nổi bật, canh hàng rõ ràng, không bị cắt, không bị chồng chữ.
+- Nếu có ghi chú hoặc điều kiện visa, đặt trong block riêng dưới bảng, chữ rõ ràng, không nhỏ li ti.
+- Toàn bộ chữ phải hiển thị rõ, không lỗi font, không cắt nội dung.`;
 }
 
 function buildTourismBodyPromptBlock(get) {

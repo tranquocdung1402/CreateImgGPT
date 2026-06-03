@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260528-body-tabs" />
+    <link rel="stylesheet" href="styles.css?v=20260603-visa-body-tab" />
   </head>
   <body>
     <main class="app-shell">
@@ -222,6 +222,7 @@
               <div class="content-tabs" role="tablist" aria-label="Chọn nội dung body">
                 <button class="content-tab active" type="button" role="tab" aria-selected="true" aria-controls="itineraryTabPanel" data-body-tab="itinerary">Lịch trình hiện tại</button>
                 <button class="content-tab" type="button" role="tab" aria-selected="false" aria-controls="tourismTabPanel" data-body-tab="tourism">Khám phá Đà Nẵng</button>
+                <button class="content-tab" type="button" role="tab" aria-selected="false" aria-controls="visaTabPanel" data-body-tab="visa">Bảng báo giá visa</button>
               </div>
 
               <div id="itineraryTabPanel" class="tab-panel" role="tabpanel">
@@ -281,6 +282,19 @@
 2. Các món ăn đặc sản
 3. Các trò chơi trên biển
 4. Các quán ăn hải sản nổi tiếng</textarea>
+                </label>
+              </div>
+
+              <div id="visaTabPanel" class="tab-panel hidden" role="tabpanel">
+                <div class="grid two">
+                  <label>
+                    Ảnh bảng báo giá visa
+                    <input id="visaImageInput" name="visaImage" type="file" accept="image/*" />
+                  </label>
+                </div>
+                <label>
+                  Yêu cầu đọc bảng visa
+                  <textarea name="visaImageInstruction" rows="6">Tôi sẽ cung cấp một ảnh bảng báo giá visa. Hãy đọc ảnh này làm nguồn dữ liệu chính và nhập lại chính xác toàn bộ nội dung bảng vào body brochure: tiêu đề, nhóm visa, số ngày, số lần nhập cảnh, điều kiện, giá, đơn vị tiền, ghi chú, thứ tự hàng/cột và mọi con số. Không tự thêm giá, không tự sửa giá, không suy đoán nội dung bị thiếu. Nếu chi tiết nào trong ảnh không đọc rõ, hãy ghi "需确认" thay vì tự bịa.</textarea>
                 </label>
               </div>
             </section>
@@ -385,7 +399,7 @@
               </div>
               <label>
                 Ràng buộc xuất ảnh
-                <textarea name="technicalRequirements" rows="5">Tỷ lệ khung hình dọc dạng brochure dài, hiển thị đầy đủ nội dung, không cắt chữ hoặc hình ảnh, chữ Trung Quốc rõ ràng, không lỗi font, bố cục chia section riêng biệt, hình ảnh minh họa sắc nét, bo góc nhẹ, không cần caption trên ảnh lịch trình. Nền tổng thể của brochure phải là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng. Gold chỉ dùng làm điểm nhấn nhỏ như viền, icon hoặc chữ nổi bật.</textarea>
+                <textarea name="technicalRequirements" rows="5">Tỷ lệ khung hình dọc dạng brochure dài, hiển thị đầy đủ nội dung, không cắt chữ hoặc hình ảnh, chữ Trung Quốc rõ ràng, không lỗi font, bố cục chia section riêng biệt, hình ảnh minh họa sắc nét, bo góc nhẹ, không cần caption trên ảnh lịch trình. Nền tổng thể của brochure phải là màu trắng sáng, sạch, hiện đại; không dùng nền vàng, beige, kem hoặc ngả vàng. Gold chỉ dùng làm điểm nhấn nhỏ như viền, icon hoặc chữ nổi bật. Chữ trong toàn bộ body phải lớn, rõ, dễ đọc; nếu thiếu không gian thì kéo dài canvas/section, không thu nhỏ font hoặc nén nội dung.</textarea>
               </label>
             </section>
           </form>
