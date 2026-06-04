@@ -147,12 +147,12 @@ form.addEventListener("input", (event) => {
   schedulePromptUpdate();
 });
 
-document.querySelector("#generatePromptButton").addEventListener("click", () => {
+document.querySelector("#generatePromptButton")?.addEventListener("click", () => {
   renderItinerarySummary();
   updatePrompt("Prompt đã được cập nhật.");
 });
 
-document.querySelector("#resetButton").addEventListener("click", () => {
+document.querySelector("#resetButton")?.addEventListener("click", () => {
   form.reset();
   updateSelectedDestinationDetails();
   renderAutoItineraryControls({ reset: true });
@@ -178,7 +178,7 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
-document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
+document.querySelector("#exportExcelButton")?.addEventListener("click", exportExcel);
 document.querySelector("#syncManualItineraryButton").addEventListener("click", () => {
   renderManualItinerary();
   updatePrompt("Đã đồng bộ số ngày lịch trình tự viết.");

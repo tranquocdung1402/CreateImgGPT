@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Route Map Prompt</title>
+    <link rel="stylesheet" href="styles.css?v=20260604-route-map-prompt" />
+  </head>
+  <body>
+    <main class="app-shell route-page">
+      <section class="workspace">
+        <header class="topbar route-topbar">
+          <div>
+            <p class="eyebrow">CreateImgGPT</p>
+            <h1>Prompt bản đồ lịch trình</h1>
+          </div>
+          <div class="topbar-actions">
+            <a class="secondary-button button-link" href="index.html">Quay lại prompt brochure</a>
+          </div>
+        </header>
+
+        <div class="layout route-layout">
+          <form class="panel form-panel" id="routePromptForm">
+            <section class="form-section">
+              <div class="section-title">
+                <span>01</span>
+                <h2>Thông Tin Bản Đồ</h2>
+              </div>
+              <div class="grid two">
+                <label>
+                  Điểm đến
+                  <input name="destination" value="Đà Nẵng - Hội An - Quảng Nam" />
+                </label>
+                <label>
+                  Thời lượng
+                  <input name="duration" value="5 ngày 4 đêm" />
+                </label>
+                <label>
+                  Title tiếng Trung
+                  <input name="title" value="越南中部5天4夜路线规划" />
+                </label>
+                <label>
+                  Tagline
+                  <input name="tagline" value="海景 · 古城 · 打卡景点 · 美食体验" />
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>02</span>
+                <h2>Nội Dung Lịch Trình</h2>
+              </div>
+              <label>
+                Lịch trình từng ngày
+                <textarea name="itinerary" rows="12">Day 1: Đà Nẵng city + biển Mỹ Khê + bán đảo Sơn Trà + chùa Linh Ứng + Cầu Rồng.
+Day 2: Hội An phố cổ + rừng dừa Bảy Mẫu + sông Hoài + phố đèn lồng.
+Day 3: Bà Nà Hills + Cầu Vàng + làng Pháp.
+Day 4: Ngũ Hành Sơn + làng đá Non Nước + Mỹ Sơn hoặc trải nghiệm văn hóa.
+Day 5: Chợ Hàn + mua sắm đặc sản + sân bay.</textarea>
+              </label>
+              <div class="grid two">
+                <label>
+                  Điểm nổi bật trên map
+                  <textarea name="mapHighlights" rows="5">Sân bay Đà Nẵng, biển Mỹ Khê, bán đảo Sơn Trà, chùa Linh Ứng, Cầu Rồng, Hội An, rừng dừa Bảy Mẫu, Bà Nà Hills, Cầu Vàng, Ngũ Hành Sơn, Mỹ Sơn.</textarea>
+                </label>
+                <label>
+                  Món ăn / tips phụ
+                  <textarea name="sideNotes" rows="5">Mì Quảng, bánh mì Hội An, hải sản Mỹ Khê, cà phê Việt Nam. Gợi ý: chống nắng, mang giày thoải mái, đặt xe trước, ưu tiên đi sớm để tránh đông khách.</textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>03</span>
+                <h2>Phong Cách</h2>
+              </div>
+              <label>
+                Style prompt
+                <textarea name="style" rows="5">Minh họa bản đồ du lịch tươi sáng, clean vector infographic, màu xanh biển, xanh lá, trắng và gold/cam làm điểm nhấn. Bố cục giống travel route map, có đường tuyến nét đứt, pin địa điểm, icon xe hơi/máy bay/cáp treo/biển/chùa, card ngày gọn gàng, chữ Trung rõ và lớn.</textarea>
+              </label>
+            </section>
+          </form>
+
+          <aside class="panel preview-panel sticky-preview">
+            <div class="preview-header">
+              <div>
+                <p class="eyebrow">Route Map Output</p>
+                <h2>Prompt</h2>
+              </div>
+            </div>
+
+            <div class="prompt-output route-prompt-output">
+              <div class="prompt-output-header">
+                <label for="routePromptOutput">Generated Prompt</label>
+                <div class="copy-actions">
+                  <span id="routeCopyNotice" aria-live="polite"></span>
+                  <button class="secondary-button compact-button" id="copyRoutePromptButton" type="button">
+                    Copy Prompt
+                  </button>
+                </div>
+              </div>
+              <textarea id="routePromptOutput" rows="28" spellcheck="false"></textarea>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="route-map.js?v=20260604-route-map-prompt" type="module"></script>
+  </body>
+</html>
