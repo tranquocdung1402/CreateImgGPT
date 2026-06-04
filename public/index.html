@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260604-short-tour-timeline" />
+    <link rel="stylesheet" href="styles.css?v=20260604-concise-tour-details" />
   </head>
   <body>
     <main class="app-shell">
@@ -60,7 +60,7 @@
                 </label>
                 <label>
                   Font lịch trình
-                  <input name="itineraryFontSize" value="Giờ 24px, nội dung lịch trình 40-44px; mỗi ngày chỉ 3-4 mốc giờ chính; câu ngắn, chữ lớn, không thu nhỏ chữ để nhét nội dung" />
+                  <input name="itineraryFontSize" value="Giờ 24px, nội dung lịch trình 40-44px; giữ đầy đủ mốc giờ cần thiết; phần nội dung sau giờ phải ngắn, chữ lớn, không thu nhỏ chữ để nhét nội dung" />
                 </label>
                 <label>
                   Font bảng chi phí
@@ -237,7 +237,7 @@
                   <div class="auto-final-day" id="autoFinalDay"></div>
                   <label>
                     Quy tắc tạo lịch trình
-                    <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và địa điểm được chọn theo từng ngày, tự động lập lịch trình dạng tóm tắt cao cấp. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày chỉ tạo 3-4 mốc giờ HH:MM quan trọng nhất; mỗi mốc viết ngắn, đầy đủ nghĩa, ưu tiên địa điểm/hoạt động chính, không viết mô tả dài.</textarea>
+                    <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và địa điểm được chọn theo từng ngày, tự động lập lịch trình đầy đủ theo từng ngày. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Giữ đầy đủ các mốc giờ HH:MM cần thiết cho hành trình sáng/trưa/chiều/tối, nhưng phần nội dung sau mỗi mốc giờ phải viết ngắn, đầy đủ nghĩa, ưu tiên địa điểm/hoạt động chính, không viết mô tả dài.</textarea>
                   </label>
                 </div>
                 <div id="imageItineraryFields" class="hidden">
@@ -423,6 +423,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260604-short-tour-timeline" type="module"></script>
+    <script src="app.js?v=20260604-concise-tour-details" type="module"></script>
   </body>
 </html>

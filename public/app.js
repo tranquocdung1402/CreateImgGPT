@@ -990,7 +990,7 @@ Trong mỗi khối ngày, chia 2 phần:
 - Không dùng chữ nhỏ trong timeline. Không dùng glow, blur, texture, shadow nặng hoặc nền ảnh phức tạp phía sau nội dung lịch trình.
 - Nội dung hoạt động phải là cụm ngắn, đủ nghĩa, không viết văn mô tả dài. Mỗi mốc chỉ 8-14 ký tự Trung Quốc nếu có thể, tối đa 18 ký tự Trung Quốc.
 - Nếu câu dài thì tự động xuống dòng 2 dòng với line-height rộng, nhưng ưu tiên rút gọn câu trước. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
-- Mỗi ngày chỉ hiển thị 3-4 mốc giờ chính, không nhiều hơn 4 mốc. Chỉ giữ hoạt động quan trọng nhất như đón khách, điểm tham quan chính, ăn uống chính, check-in/check-out/ra sân bay nếu cần.
+- Không giới hạn cứng số mốc giờ trong ngày. Giữ đầy đủ các mốc giờ cần thiết để lịch trình rõ ràng và chi tiết, nhưng mỗi mốc phải dùng text ngắn.
 - Không ghi mô tả phụ kiểu cảm nhận, giới thiệu dài, giải thích chi tiết hoặc câu quảng cáo trong timeline. Các đoạn mô tả dài phải được lược bỏ.
 - Nếu thiếu không gian, bắt buộc kéo dài canvas/section theo chiều dọc thay vì giảm font, nén dòng, thu nhỏ timeline hoặc làm mờ chữ.
 - Không đặt giờ và nội dung quá sát nhau; bắt buộc có khoảng trắng và vạch chia giữa giờ và nội dung.
@@ -1054,8 +1054,8 @@ Yêu cầu nội dung lịch trình:
 - Các ngày GPT tự lập phải bắt đầu timeline từ đúng giờ bắt đầu đã nhập cho ngày đó.
 - Các mốc giờ tiếp theo trong ngày GPT tự lập phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
 - Ngày cuối phải hiển thị theo từng dòng thời gian bắt đầu dạng HH:MM từ timeline tôi nhập.
-- Mỗi ngày GPT tự lập chỉ dùng 3-4 mốc giờ cụ thể dạng HH:MM; không tạo quá 4 mốc trong một ngày.
-- Timeline phải viết theo dạng short-label, ít chữ nhưng đầy đủ nghĩa. Ví dụ: "抵达岘港", "山茶半岛", "会安古城", "酒店入住", "送机返程". Không viết câu dài như đoạn văn.
+- Không set cứng số lượng mốc giờ mỗi ngày; hãy tạo đủ mốc giờ cần thiết để lịch trình đầy đủ, chi tiết và dễ hiểu.
+- Timeline phải viết theo dạng short-label ở phần nội dung sau giờ, ít chữ nhưng đầy đủ nghĩa. Ví dụ: "抵达岘港", "山茶半岛", "会安古城", "酒店入住", "送机返程". Không viết câu dài như đoạn văn.
 ${buildAutoItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;
