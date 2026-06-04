@@ -64,7 +64,7 @@ const destinationGroupsData = [
     ]
   },
   {
-    city: "Hội An",
+    city: "Quảng Nam",
     places: [
       "Phố cổ Hội An",
       "rừng dừa Bảy Mẫu",
@@ -73,12 +73,7 @@ const destinationGroupsData = [
       "đảo Cù Lao Chàm",
       "làng rau Trà Quế",
       "làng mộc Kim Bồng",
-      "công viên Ấn tượng Hội An (Show Ký ức Hội An)"
-    ]
-  },
-  {
-    city: "Quảng Nam",
-    places: [
+      "công viên Ấn tượng Hội An (Show Ký ức Hội An)",
       "VinWonders Nam Hội An",
       "Hoiana",
       "biển An Bàng",
@@ -95,7 +90,6 @@ const form = document.querySelector("#promptForm");
 const itinerarySummary = document.querySelector("#itinerarySummary");
 const autoStartTimes = document.querySelector("#autoStartTimes");
 const autoFinalDay = document.querySelector("#autoFinalDay");
-const destinationGroups = document.querySelector("#destinationGroups");
 const selectedDestinationDetails = document.querySelector("#selectedDestinationDetails");
 const costItemsContainer = document.querySelector("#costItems");
 const costTotal = document.querySelector("#costTotal");
@@ -134,7 +128,6 @@ const hotelFields = document.querySelector("#hotelFields");
 let copyNoticeTimer;
 let promptUpdateTimer;
 
-renderDestinationGroups();
 updateSelectedDestinationDetails();
 renderCostItems(defaultCostItems);
 renderItinerarySummary();
@@ -186,14 +179,6 @@ document.querySelector("#logoInput").addEventListener("change", async (event) =>
 document.querySelector("#copyPromptButton").addEventListener("click", copyPrompt);
 document.querySelector("#addCostItemButton").addEventListener("click", addCostItem);
 document.querySelector("#exportExcelButton").addEventListener("click", exportExcel);
-document.querySelector("#selectAllDestinationsButton").addEventListener("click", () => {
-  setAllDestinationCheckboxes(true);
-  updatePrompt("Đã chọn tất cả điểm đến.");
-});
-document.querySelector("#clearDestinationsButton").addEventListener("click", () => {
-  setAllDestinationCheckboxes(false);
-  updatePrompt("Đã bỏ chọn điểm đến.");
-});
 document.querySelector("#syncManualItineraryButton").addEventListener("click", () => {
   renderManualItinerary();
   updatePrompt("Đã đồng bộ số ngày lịch trình tự viết.");
@@ -254,60 +239,12 @@ visaImageInput.addEventListener("change", (event) => {
   updatePrompt(visaImageName ? "Đã nạp tên ảnh bảng báo giá visa." : "Prompt tự động cập nhật.");
 });
 
-destinationGroups.addEventListener("change", (event) => {
-  if (!event.target.classList.contains("destination-checkbox")) return;
-  updateSelectedDestinationDetails();
-  updatePrompt("Prompt tự động cập nhật.");
-});
-
-function renderDestinationGroups() {
-  destinationGroups.innerHTML = destinationGroupsData
-    .map(
-      (group) => `
-        <fieldset class="destination-group">
-          <legend>${escapeHtml(group.city)}</legend>
-          <div class="destination-options">
-            ${group.places
-              .map(
-                (place) => `
-                  <label class="destination-option">
-                    <input class="destination-checkbox" type="checkbox" value="${escapeHtml(place)}" data-city="${escapeHtml(group.city)}" checked />
-                    <span>${escapeHtml(place)}</span>
-                  </label>
-                `
-              )
-              .join("")}
-          </div>
-        </fieldset>
-      `
-    )
-    .join("");
-}
-
-function setAllDestinationCheckboxes(checked) {
-  destinationGroups.querySelectorAll(".destination-checkbox").forEach((checkbox) => {
-    checkbox.checked = checked;
-  });
-  updateSelectedDestinationDetails();
-}
-
 function updateSelectedDestinationDetails() {
-  selectedDestinationDetails.value = formatSelectedDestinations();
+  selectedDestinationDetails.value = formatAutoDayDestinationsForPrompt();
 }
 
-function formatSelectedDestinations() {
-  const lines = destinationGroupsData
-    .map((group) => {
-      const selectedPlaces = [...destinationGroups.querySelectorAll(`.destination-checkbox[data-city="${cssEscape(group.city)}"]:checked`)].map((checkbox) => checkbox.value);
-      return selectedPlaces.length ? `${group.city}: ${selectedPlaces.join(", ")}.` : "";
-    })
-    .filter(Boolean);
-
-  return lines.length ? lines.join("\n\n") : "Không có điểm đến chi tiết được chọn. Chỉ dựa vào điểm đến chính và các yêu cầu khác.";
-}
-
-function cssEscape(value) {
-  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+function getDestinationGroup(city) {
+  return destinationGroupsData.find((group) => group.city === city) || destinationGroupsData[0];
 }
 
 function renderBodyContentTabs(mode = bodyContentModeInput.value || "itinerary") {
@@ -358,7 +295,7 @@ function renderAutoItineraryControls(options = {}) {
 
 function renderAutoStartTimes(options = {}) {
   const trip = parseDuration(durationInput.value);
-  const existingTimes = options.reset ? [] : getAutoStartTimes();
+  const existingPlans = options.reset ? [] : getAutoStartTimes();
   const autoDays = Math.max(trip.days - 1, 0);
 
   if (autoDays === 0) {
@@ -368,19 +305,52 @@ function renderAutoStartTimes(options = {}) {
 
   const rows = Array.from({ length: autoDays }, (_, index) => {
     const day = index + 1;
-    const startTime = existingTimes[index]?.startTime || defaultAutoStartTime(day);
-    return "<label class=\"auto-start-time\">" +
-      "<span>第" + day + "天 bắt đầu</span>" +
-      "<input class=\"auto-start-time-input\" type=\"time\" value=\"" + escapeHtml(startTime) + "\" data-day=\"" + day + "\" aria-label=\"Giờ bắt đầu ngày " + day + "\" />" +
-      "</label>";
+    const existing = existingPlans[index] || {};
+    return autoDayPlanTemplate({
+      day,
+      startTime: existing.startTime || defaultAutoStartTime(day),
+      city: existing.city || destinationGroupsData[0].city,
+      places: existing.places || []
+    });
   }).join("");
 
   autoStartTimes.innerHTML =
     "<div class=\"auto-start-times-header\">" +
-    "<h3>Thời gian bắt đầu các ngày tự động</h3>" +
-    "<p>GPT sẽ tự lên lịch trình cho các ngày này theo giờ bắt đầu bạn chọn. Ngày cuối nhập timeline riêng bên dưới.</p>" +
+    "<h3>Kế hoạch từng ngày tự động</h3>" +
+    "<p>Chọn giờ bắt đầu và địa điểm muốn đi cho từng ngày. GPT sẽ tự sắp xếp timeline hợp lý theo dữ liệu này. Ngày cuối nhập timeline riêng bên dưới.</p>" +
     "</div>" +
-    "<div class=\"auto-start-time-grid\">" + rows + "</div>";
+    "<div class=\"auto-day-plan-grid\">" + rows + "</div>";
+}
+
+function autoDayPlanTemplate(plan) {
+  const group = getDestinationGroup(plan.city);
+  const selectedSet = new Set(plan.places || []);
+  const matchedCount = group.places.filter((place) => selectedSet.has(place)).length;
+  const shouldDefaultAll = selectedSet.size === 0 || matchedCount === 0;
+  const cityOptions = destinationGroupsData
+    .map((groupItem) => "<option value=\"" + escapeHtml(groupItem.city) + "\"" + (groupItem.city === group.city ? " selected" : "") + ">" + escapeHtml(groupItem.city) + "</option>")
+    .join("");
+  const placeOptions = group.places
+    .map((place) => {
+      const checked = shouldDefaultAll || selectedSet.has(place) ? " checked" : "";
+      return "<label class=\"auto-place-option\">" +
+        "<input class=\"auto-place-checkbox\" type=\"checkbox\" value=\"" + escapeHtml(place) + "\"" + checked + " />" +
+        "<span>" + escapeHtml(place) + "</span>" +
+      "</label>";
+    })
+    .join("");
+
+  return "<article class=\"auto-day-plan\" data-day=\"" + plan.day + "\">" +
+    "<div class=\"auto-day-plan-head\">" +
+      "<strong>第" + plan.day + "天</strong>" +
+      "<label><span>Bắt đầu</span><input class=\"auto-start-time-input\" type=\"time\" value=\"" + escapeHtml(plan.startTime) + "\" data-day=\"" + plan.day + "\" aria-label=\"Giờ bắt đầu ngày " + plan.day + "\" /></label>" +
+      "<label><span>Khu vực</span><select class=\"auto-day-city\" aria-label=\"Khu vực ngày " + plan.day + "\">" + cityOptions + "</select></label>" +
+    "</div>" +
+    "<details class=\"auto-place-details\" open>" +
+      "<summary>Địa điểm chi tiết</summary>" +
+      "<div class=\"auto-place-options\">" + placeOptions + "</div>" +
+    "</details>" +
+  "</article>";
 }
 
 function renderAutoFinalDay(options = {}) {
@@ -443,15 +413,37 @@ function defaultAutoStartTime(day) {
 }
 
 function getAutoStartTimes() {
-  return [...autoStartTimes.querySelectorAll(".auto-start-time-input")].map((input, index) => ({
-    day: Number(input.dataset.day || index + 1),
-    startTime: input.value || defaultAutoStartTime(index + 1)
-  }));
+  return [...autoStartTimes.querySelectorAll(".auto-day-plan")].map((card, index) => {
+    const day = Number(card.dataset.day || index + 1);
+    const city = card.querySelector(".auto-day-city")?.value || destinationGroupsData[0].city;
+    const places = [...card.querySelectorAll(".auto-place-checkbox:checked")].map((checkbox) => checkbox.value);
+    return {
+      day,
+      startTime: card.querySelector(".auto-start-time-input")?.value || defaultAutoStartTime(day),
+      city,
+      places
+    };
+  });
 }
 
 function formatAutoStartTimesForPrompt() {
   return getAutoStartTimes()
-    .map((item) => `第${item.day}天: bắt đầu lịch trình từ ${item.startTime}`)
+    .map((item) => {
+      const places = item.places.length ? item.places.join(", ") : "chưa chọn địa điểm chi tiết";
+      return `第${item.day}天: bắt đầu từ ${item.startTime}; khu vực ${item.city}; địa điểm muốn đi: ${places}.`;
+    })
+    .join("\n");
+}
+
+function formatAutoDayDestinationsForPrompt() {
+  const plans = getAutoStartTimes();
+  if (!plans.length) return "Không dùng danh sách điểm đến chi tiết toàn tour; điểm đến được chọn riêng theo từng ngày trong lịch trình tự động.";
+
+  return plans
+    .map((item) => {
+      const places = item.places.length ? item.places.join(", ") : "chưa chọn địa điểm chi tiết";
+      return `第${item.day}天 (${item.city}): ${places}.`;
+    })
     .join("\n");
 }
 
@@ -511,6 +503,15 @@ function manualRowTemplate(row = {}) {
     </div>
   `;
 }
+
+autoStartTimes.addEventListener("change", (event) => {
+  if (event.target.classList.contains("auto-day-city")) {
+    renderAutoStartTimes();
+  }
+
+  updateSelectedDestinationDetails();
+  updatePrompt("Prompt tự động cập nhật.");
+});
 
 autoFinalDay.addEventListener("click", (event) => {
   const addButton = event.target.closest(".add-auto-final-row");
@@ -768,7 +769,7 @@ function buildPrompt() {
     : get("technicalRequirements");
   const destinationContextLabel = useItineraryBody
     ? useAutoItinerary
-      ? "Điểm đến chi tiết để lựa chọn và phân bổ vào lịch trình:"
+      ? "Địa điểm đã chọn theo từng ngày cho lịch trình tự động:"
       : useImageItinerary
         ? "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ, không được dùng để thay đổi lịch trình trong ảnh tham khảo:"
         : "Điểm đến chi tiết chỉ dùng làm ngữ cảnh phụ và gợi ý hình minh họa, không được thay đổi lịch trình tự viết:"
@@ -1060,9 +1061,9 @@ ${formatAutoFinalDayForPrompt()}
 
 Yêu cầu nội dung lịch trình:
 - Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
-- Với các ngày từ 第1天 đến 第${Math.max(trip.days - 1, 1)}天, GPT tự lập lịch trình dựa trên điểm đến chi tiết và giờ bắt đầu đã nhập.
+- Với các ngày từ 第1天 đến 第${Math.max(trip.days - 1, 1)}天, GPT tự lập lịch trình dựa trên giờ bắt đầu và địa điểm đã chọn riêng cho từng ngày.
 - Riêng ngày cuối 第${trip.days}天, bắt buộc dùng timeline do tôi nhập; không tự thay đổi thời gian bắt đầu hoặc hoạt động chính.
-- Dựa vào điểm đến chi tiết để chọn địa danh phù hợp cho từng ngày GPT tự lập.
+- Mỗi ngày chỉ ưu tiên các địa điểm đã chọn cho ngày đó; không tự lấy quá nhiều địa điểm ngoài danh sách ngày đó nếu không cần thiết.
 - Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
 - Tối ưu hành trình theo khu vực địa lý: nhóm các điểm gần nhau trong cùng một buổi hoặc cùng một ngày.
 - Hạn chế tối đa di chuyển xa nhiều lần trong ngày; không đi từ Đà Nẵng sang Hội An rồi quay lại Đà Nẵng nếu không thật sự cần thiết.
@@ -1291,7 +1292,7 @@ function buildItineraryExcelRows() {
     [labelCell("Gợi ý title"), cell(get("tourTitle"))],
     [labelCell("Thời lượng"), cell(get("duration"))],
     [labelCell("Điểm đến"), cell(get("destination"))],
-    [labelCell("Điểm đến chi tiết"), cell(get("destinationDetails"))],
+    [labelCell("Địa điểm theo từng ngày"), cell(get("destinationDetails"))],
     [labelCell("Loại lịch trình"), cell(itineraryModeLabel(itineraryModeValue))],
     [labelCell("Yêu cầu gốc của khách"), cell(get("clientRequest"))],
     [labelCell("Số trận golf"), cell(get("golfRounds"))],
@@ -1318,7 +1319,7 @@ function buildItineraryExcelRows() {
     for (let index = 0; index < Math.max(trip.days - 1, 0); index += 1) {
       rows.push([
         labelCell(`第${index + 1}天`),
-        cell(`GPT tự lập timeline từ ${getAutoStartTimes()[index]?.startTime || defaultAutoStartTime(index + 1)} dựa trên điểm đến chi tiết, sân golf và logic di chuyển.`)
+        cell(`GPT tự lập timeline từ ${getAutoStartTimes()[index]?.startTime || defaultAutoStartTime(index + 1)} dựa trên địa điểm đã chọn cho ngày này, sân golf và logic di chuyển.`)
       ]);
     }
 

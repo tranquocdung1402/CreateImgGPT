@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260603-visa-wide-table" />
+    <link rel="stylesheet" href="styles.css?v=20260604-auto-day-destinations" />
   </head>
   <body>
     <main class="app-shell">
@@ -105,22 +105,9 @@
                 </label>
               </div>
               <input id="selectedDestinationDetails" name="destinationDetails" type="hidden" />
-              <div class="destination-picker">
-                <div class="destination-picker-header">
-                  <div>
-                    <h3>Điểm đến chi tiết</h3>
-                    <p>Chỉ các địa điểm được tick mới được thêm vào prompt.</p>
-                  </div>
-                  <div class="destination-picker-actions">
-                    <button class="secondary-button compact-button" id="selectAllDestinationsButton" type="button">Chọn tất cả</button>
-                    <button class="secondary-button compact-button" id="clearDestinationsButton" type="button">Bỏ chọn</button>
-                  </div>
-                </div>
-                <div class="destination-groups" id="destinationGroups"></div>
-              </div>
               <label>
                 Định hướng lịch trình
-                <textarea name="tourBrief" rows="4">Thiết kế lịch trình nghỉ dưỡng cao cấp, tự chọn và phân bổ các địa danh phù hợp từ danh sách điểm đến chi tiết, sắp xếp thời gian sáng/trưa/chiều/tối logic và tiết kiệm thời gian di chuyển.</textarea>
+                <textarea name="tourBrief" rows="4">Thiết kế lịch trình nghỉ dưỡng cao cấp, dựa trên giờ bắt đầu và địa điểm được chọn cho từng ngày, sắp xếp thời gian sáng/trưa/chiều/tối logic và tiết kiệm thời gian di chuyển.</textarea>
               </label>
             </section>
 
@@ -440,6 +427,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260603-visa-wide-table" type="module"></script>
+    <script src="app.js?v=20260604-auto-day-destinations" type="module"></script>
   </body>
 </html>
