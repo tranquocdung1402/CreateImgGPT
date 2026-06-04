@@ -985,11 +985,13 @@ Trong mỗi khối ngày, chia 2 phần:
 - Chấm tròn gold nhỏ nằm giữa icon và giờ, kích thước 5-7px.
 - Giờ HH:MM đặt bên phải chấm gold, font 24px, màu đen hoặc xám đậm, căn giữa theo chiều dọc với nội dung hoạt động.
 - Sau phần giờ bắt buộc có một vạch dọc màu xám nhạt để ngăn cách rõ ràng giữa thời gian và nội dung.
-- Nội dung hoạt động đặt bên phải vạch dọc, font 36-40px, màu xanh đậm hoặc đen, lớn hơn giờ rõ rệt, sharp, high contrast và dễ đọc ở full size.
+- Nội dung hoạt động đặt bên phải vạch dọc, font 40-44px, màu xanh đậm hoặc đen, lớn hơn giờ rõ rệt, sharp, high contrast và dễ đọc ở full size.
 - Ưu tiên tuyệt đối độ rõ của chữ lịch trình hơn hiệu ứng hình ảnh. Chữ timeline tiếng Trung phải sắc nét, đúng nét, không nhòe, không méo, không giả chữ, không dính chữ, không bị cắt.
 - Không dùng chữ nhỏ trong timeline. Không dùng glow, blur, texture, shadow nặng hoặc nền ảnh phức tạp phía sau nội dung lịch trình.
-- Nội dung hoạt động không được thu nhỏ để nhét chữ; nếu câu dài thì tự động xuống dòng 2 dòng với line-height rộng. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
-- Mỗi ngày chỉ hiển thị 4-5 mốc giờ chính, câu hoạt động viết ngắn gọn, dễ đọc, không nhồi quá nhiều chữ trong một dòng.
+- Nội dung hoạt động phải là cụm ngắn, đủ nghĩa, không viết văn mô tả dài. Mỗi mốc chỉ 8-14 ký tự Trung Quốc nếu có thể, tối đa 18 ký tự Trung Quốc.
+- Nếu câu dài thì tự động xuống dòng 2 dòng với line-height rộng, nhưng ưu tiên rút gọn câu trước. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
+- Mỗi ngày chỉ hiển thị 3-4 mốc giờ chính, không nhiều hơn 4 mốc. Chỉ giữ hoạt động quan trọng nhất như đón khách, điểm tham quan chính, ăn uống chính, check-in/check-out/ra sân bay nếu cần.
+- Không ghi mô tả phụ kiểu cảm nhận, giới thiệu dài, giải thích chi tiết hoặc câu quảng cáo trong timeline. Các đoạn mô tả dài phải được lược bỏ.
 - Nếu thiếu không gian, bắt buộc kéo dài canvas/section theo chiều dọc thay vì giảm font, nén dòng, thu nhỏ timeline hoặc làm mờ chữ.
 - Không đặt giờ và nội dung quá sát nhau; bắt buộc có khoảng trắng và vạch chia giữa giờ và nội dung.
 ${imageLayout}`;
@@ -1018,6 +1020,7 @@ Yêu cầu xử lý lịch trình tự viết:
 - Bắt buộc dùng đúng ${trip.days} ngày theo danh sách trên, không thiếu ngày, không thêm ngày ngoài thời lượng.
 - Giữ đúng thứ tự ngày, mốc giờ và nội dung hoạt động chính tôi đã nhập.
 - Có thể biên tập câu chữ sang tiếng Trung Giản thể cho gọn, sang trọng và dễ đọc, nhưng không tự thay đổi logic di chuyển.
+- Bắt buộc rút gọn nội dung tôi nhập thành câu timeline ngắn, đủ nghĩa, ưu tiên chữ lớn và dễ đọc hơn việc giữ nguyên câu dài.
 - Nếu dòng nào chưa có giờ hoặc nội dung, hãy giữ bố cục hợp lý và không tự bịa thêm hoạt động quan trọng.
 ${buildManualItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, giữ đúng các buổi golf đã nhập và ghi rõ sân golf, thời gian tee-off nếu có, ăn uống và di chuyển." : ""}
@@ -1051,7 +1054,8 @@ Yêu cầu nội dung lịch trình:
 - Các ngày GPT tự lập phải bắt đầu timeline từ đúng giờ bắt đầu đã nhập cho ngày đó.
 - Các mốc giờ tiếp theo trong ngày GPT tự lập phải được sắp xếp logic sau giờ bắt đầu, không tạo hoạt động sớm hơn giờ bắt đầu.
 - Ngày cuối phải hiển thị theo từng dòng thời gian bắt đầu dạng HH:MM từ timeline tôi nhập.
-- Mỗi ngày GPT tự lập phải có ít nhất 4 mốc giờ cụ thể dạng HH:MM.
+- Mỗi ngày GPT tự lập chỉ dùng 3-4 mốc giờ cụ thể dạng HH:MM; không tạo quá 4 mốc trong một ngày.
+- Timeline phải viết theo dạng short-label, ít chữ nhưng đầy đủ nghĩa. Ví dụ: "抵达岘港", "山茶半岛", "会安古城", "酒店入住", "送机返程". Không viết câu dài như đoạn văn.
 ${buildAutoItineraryImageRule(itineraryImageModeValue)}
 ${includeGolf ? "- Nếu là tour golf, mỗi ngày có golf cần ghi rõ sân golf, thời gian tee-off dự kiến, thời lượng chơi, ăn uống và di chuyển." : ""}
 - Toàn bộ nội dung chữ xuất hiện trong ảnh phải là tiếng Trung Giản thể, ngoại trừ tên thương hiệu tiếng Anh nếu cần giữ nguyên.`;

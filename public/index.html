@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CreateImgGPT</title>
-    <link rel="stylesheet" href="styles.css?v=20260604-itinerary-readable-text" />
+    <link rel="stylesheet" href="styles.css?v=20260604-short-tour-timeline" />
   </head>
   <body>
     <main class="app-shell">
@@ -60,7 +60,7 @@
                 </label>
                 <label>
                   Font lịch trình
-                  <input name="itineraryFontSize" value="Giờ 24px, nội dung lịch trình 36-40px; mỗi ngày chỉ 4-5 mốc giờ chính; không thu nhỏ chữ để nhét nội dung" />
+                  <input name="itineraryFontSize" value="Giờ 24px, nội dung lịch trình 40-44px; mỗi ngày chỉ 3-4 mốc giờ chính; câu ngắn, chữ lớn, không thu nhỏ chữ để nhét nội dung" />
                 </label>
                 <label>
                   Font bảng chi phí
@@ -237,7 +237,7 @@
                   <div class="auto-final-day" id="autoFinalDay"></div>
                   <label>
                     Quy tắc tạo lịch trình
-                    <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và điểm đến chi tiết, tự động lập lịch trình đầy đủ theo từng ngày. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày, tạo timeline với các mốc giờ HH:MM cho sáng/trưa/chiều/tối; mỗi dòng có icon chức năng nhỏ như đồng hồ, xe hơi, nhà hàng, máy ảnh.</textarea>
+                    <textarea name="itineraryRules" rows="6">Dựa trên thời lượng và địa điểm được chọn theo từng ngày, tự động lập lịch trình dạng tóm tắt cao cấp. Mỗi ngày cần có thanh tiêu đề dạng 第N天 kèm chủ đề ngắn bằng tiếng Trung và icon đại diện phù hợp. Trong mỗi ngày chỉ tạo 3-4 mốc giờ HH:MM quan trọng nhất; mỗi mốc viết ngắn, đầy đủ nghĩa, ưu tiên địa điểm/hoạt động chính, không viết mô tả dài.</textarea>
                   </label>
                 </div>
                 <div id="imageItineraryFields" class="hidden">
@@ -423,6 +423,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260604-itinerary-readable-text" type="module"></script>
+    <script src="app.js?v=20260604-short-tour-timeline" type="module"></script>
   </body>
 </html>
