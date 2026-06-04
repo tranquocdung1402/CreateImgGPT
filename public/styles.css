@@ -854,6 +854,45 @@ textarea:focus {
   margin-top: 0;
 }
 
+.route-days {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.route-day-card {
+  padding: 14px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.route-day-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.route-day-title h3 {
+  margin: 0;
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.route-place-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.route-place-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+}
+
 #routeCopyNotice {
   min-width: 116px;
   color: var(--green);
@@ -1006,6 +1045,10 @@ textarea:focus {
   .auto-final-table-head,
   .auto-final-row,
   .manual-row {
+    grid-template-columns: 1fr;
+  }
+
+  .route-place-row {
     grid-template-columns: 1fr;
   }
 
