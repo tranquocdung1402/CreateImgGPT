@@ -846,10 +846,7 @@ ${footerQrBlock}
 YÊU CẦU KỸ THUẬT:
 ${technicalRequirementsBlock}
 
-IMAGE QUALITY KEYWORDS:
-${get("imageQuality")}
-
-Hãy tạo ảnh hoàn chỉnh với độ sắc nét cao nhất, ưu tiên bố cục dễ đọc, chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
+Hãy tạo ảnh hoàn chỉnh theo đúng bố cục trên, ưu tiên chữ Trung rõ ràng, không lỗi font, không cắt nội dung.`;
 }
 
 function buildHeaderImagePrompt(get) {
@@ -980,6 +977,7 @@ function buildAutoItineraryImageRule(mode) {
 function buildItineraryPromptBlock(get, trip, daySections, itineraryModeValue, includeGolf, itineraryImageModeValue, stayRuleBlock) {
   const imageLayout = buildItineraryImageLayout(itineraryImageModeValue);
   const sharedLayout = `Mỗi khối ngày có thanh tiêu đề màu xanh viền gold kèm icon đại diện phù hợp với chủ đề ngày đó.
+Cấu hình font lịch trình bắt buộc: ${get("itineraryFontSize")}
 Trong mỗi khối ngày, chia 2 phần:
 - Bên trái: timeline dọc theo bố cục bắt buộc, không dùng bullet list đơn giản.
 - Mỗi dòng timeline phải theo đúng thứ tự ngang: icon chức năng màu xanh navy lớn -> chấm tròn gold nhỏ -> giờ HH:MM -> vạch dọc màu xám nhạt -> nội dung hoạt động tiếng Trung.
@@ -987,8 +985,12 @@ Trong mỗi khối ngày, chia 2 phần:
 - Chấm tròn gold nhỏ nằm giữa icon và giờ, kích thước 5-7px.
 - Giờ HH:MM đặt bên phải chấm gold, font 24px, màu đen hoặc xám đậm, căn giữa theo chiều dọc với nội dung hoạt động.
 - Sau phần giờ bắt buộc có một vạch dọc màu xám nhạt để ngăn cách rõ ràng giữa thời gian và nội dung.
-- Nội dung hoạt động đặt bên phải vạch dọc, font 30-34px, màu xanh đậm hoặc đen, lớn hơn giờ, rõ ràng và dễ đọc.
-- Nội dung hoạt động không được thu nhỏ để nhét chữ; nếu câu dài thì tự động xuống dòng 2 dòng. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
+- Nội dung hoạt động đặt bên phải vạch dọc, font 36-40px, màu xanh đậm hoặc đen, lớn hơn giờ rõ rệt, sharp, high contrast và dễ đọc ở full size.
+- Ưu tiên tuyệt đối độ rõ của chữ lịch trình hơn hiệu ứng hình ảnh. Chữ timeline tiếng Trung phải sắc nét, đúng nét, không nhòe, không méo, không giả chữ, không dính chữ, không bị cắt.
+- Không dùng chữ nhỏ trong timeline. Không dùng glow, blur, texture, shadow nặng hoặc nền ảnh phức tạp phía sau nội dung lịch trình.
+- Nội dung hoạt động không được thu nhỏ để nhét chữ; nếu câu dài thì tự động xuống dòng 2 dòng với line-height rộng. Mỗi dòng timeline phải có khoảng cách thoáng và chiều cao đủ lớn để chữ 2 dòng không chồng lên nhau hoặc bị cắt.
+- Mỗi ngày chỉ hiển thị 4-5 mốc giờ chính, câu hoạt động viết ngắn gọn, dễ đọc, không nhồi quá nhiều chữ trong một dòng.
+- Nếu thiếu không gian, bắt buộc kéo dài canvas/section theo chiều dọc thay vì giảm font, nén dòng, thu nhỏ timeline hoặc làm mờ chữ.
 - Không đặt giờ và nội dung quá sát nhau; bắt buộc có khoảng trắng và vạch chia giữa giờ và nội dung.
 ${imageLayout}`;
 
