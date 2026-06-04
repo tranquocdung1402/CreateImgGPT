@@ -604,47 +604,10 @@ textarea:focus {
   gap: 6px;
 }
 
-.auto-day-plan-head span,
-.auto-place-details summary {
+.auto-day-plan-head span {
   color: var(--green-dark);
   font-size: 13px;
   font-weight: 800;
-}
-
-.auto-place-details {
-  display: grid;
-  gap: 10px;
-}
-
-.auto-place-details summary {
-  cursor: pointer;
-}
-
-.auto-place-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.auto-place-option {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: 8px;
-  padding: 8px 9px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel-strong);
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.auto-place-option input {
-  width: auto;
-  margin: 2px 0 0;
 }
 
 .auto-final-day {
@@ -985,8 +948,7 @@ textarea:focus {
   }
 
   .auto-start-time-grid,
-  .auto-day-plan-grid,
-  .auto-place-options {
+  .auto-day-plan-grid {
     grid-template-columns: 1fr;
   }
 

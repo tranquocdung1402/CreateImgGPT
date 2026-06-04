@@ -309,8 +309,7 @@ function renderAutoStartTimes(options = {}) {
     return autoDayPlanTemplate({
       day,
       startTime: existing.startTime || defaultAutoStartTime(day),
-      city: existing.city || destinationGroupsData[0].city,
-      places: existing.places || []
+      place: existing.place || existing.places?.[0] || destinationGroupsData[0].places[0]
     });
   }).join("");
 
@@ -323,33 +322,22 @@ function renderAutoStartTimes(options = {}) {
 }
 
 function autoDayPlanTemplate(plan) {
-  const group = getDestinationGroup(plan.city);
-  const selectedSet = new Set(plan.places || []);
-  const matchedCount = group.places.filter((place) => selectedSet.has(place)).length;
-  const shouldDefaultAll = selectedSet.size === 0 || matchedCount === 0;
-  const cityOptions = destinationGroupsData
-    .map((groupItem) => "<option value=\"" + escapeHtml(groupItem.city) + "\"" + (groupItem.city === group.city ? " selected" : "") + ">" + escapeHtml(groupItem.city) + "</option>")
-    .join("");
-  const placeOptions = group.places
-    .map((place) => {
-      const checked = shouldDefaultAll || selectedSet.has(place) ? " checked" : "";
-      return "<label class=\"auto-place-option\">" +
-        "<input class=\"auto-place-checkbox\" type=\"checkbox\" value=\"" + escapeHtml(place) + "\"" + checked + " />" +
-        "<span>" + escapeHtml(place) + "</span>" +
-      "</label>";
+  const selectedPlace = plan.place || destinationGroupsData[0].places[0];
+  const destinationOptions = destinationGroupsData
+    .map((group) => {
+      const options = group.places
+        .map((place) => "<option value=\"" + escapeHtml(place) + "\"" + (place === selectedPlace ? " selected" : "") + ">" + escapeHtml(place) + "</option>")
+        .join("");
+      return "<optgroup label=\"" + escapeHtml(group.city) + "\">" + options + "</optgroup>";
     })
     .join("");
 
-  return "<article class=\"auto-day-plan\" data-day=\"" + plan.day + "\">" +
+  return "<article class=\"auto-day-plan compact\" data-day=\"" + plan.day + "\">" +
     "<div class=\"auto-day-plan-head\">" +
       "<strong>第" + plan.day + "天</strong>" +
       "<label><span>Bắt đầu</span><input class=\"auto-start-time-input\" type=\"time\" value=\"" + escapeHtml(plan.startTime) + "\" data-day=\"" + plan.day + "\" aria-label=\"Giờ bắt đầu ngày " + plan.day + "\" /></label>" +
-      "<label><span>Khu vực</span><select class=\"auto-day-city\" aria-label=\"Khu vực ngày " + plan.day + "\">" + cityOptions + "</select></label>" +
+      "<label><span>Địa điểm</span><select class=\"auto-day-place\" aria-label=\"Địa điểm ngày " + plan.day + "\">" + destinationOptions + "</select></label>" +
     "</div>" +
-    "<details class=\"auto-place-details\" open>" +
-      "<summary>Địa điểm chi tiết</summary>" +
-      "<div class=\"auto-place-options\">" + placeOptions + "</div>" +
-    "</details>" +
   "</article>";
 }
 
@@ -415,35 +403,27 @@ function defaultAutoStartTime(day) {
 function getAutoStartTimes() {
   return [...autoStartTimes.querySelectorAll(".auto-day-plan")].map((card, index) => {
     const day = Number(card.dataset.day || index + 1);
-    const city = card.querySelector(".auto-day-city")?.value || destinationGroupsData[0].city;
-    const places = [...card.querySelectorAll(".auto-place-checkbox:checked")].map((checkbox) => checkbox.value);
+    const place = card.querySelector(".auto-day-place")?.value || destinationGroupsData[0].places[0];
     return {
       day,
       startTime: card.querySelector(".auto-start-time-input")?.value || defaultAutoStartTime(day),
-      city,
-      places
+      place
     };
   });
 }
 
 function formatAutoStartTimesForPrompt() {
   return getAutoStartTimes()
-    .map((item) => {
-      const places = item.places.length ? item.places.join(", ") : "chưa chọn địa điểm chi tiết";
-      return `第${item.day}天: bắt đầu từ ${item.startTime}; khu vực ${item.city}; địa điểm muốn đi: ${places}.`;
-    })
+    .map((item) => `第${item.day}天: bắt đầu từ ${item.startTime}; địa điểm muốn đi: ${item.place}.`)
     .join("\n");
 }
 
 function formatAutoDayDestinationsForPrompt() {
   const plans = getAutoStartTimes();
-  if (!plans.length) return "Không dùng danh sách điểm đến chi tiết toàn tour; điểm đến được chọn riêng theo từng ngày trong lịch trình tự động.";
+  if (!plans.length) return "Không dùng danh sách điểm đến chi tiết toàn tour; địa điểm được chọn riêng theo từng ngày trong lịch trình tự động.";
 
   return plans
-    .map((item) => {
-      const places = item.places.length ? item.places.join(", ") : "chưa chọn địa điểm chi tiết";
-      return `第${item.day}天 (${item.city}): ${places}.`;
-    })
+    .map((item) => `第${item.day}天: ${item.place}.`)
     .join("\n");
 }
 
@@ -504,11 +484,7 @@ function manualRowTemplate(row = {}) {
   `;
 }
 
-autoStartTimes.addEventListener("change", (event) => {
-  if (event.target.classList.contains("auto-day-city")) {
-    renderAutoStartTimes();
-  }
-
+autoStartTimes.addEventListener("change", () => {
   updateSelectedDestinationDetails();
   updatePrompt("Prompt tự động cập nhật.");
 });
@@ -1061,9 +1037,9 @@ ${formatAutoFinalDayForPrompt()}
 
 Yêu cầu nội dung lịch trình:
 - Tự tạo đủ ${trip.days} ngày và ${trip.nights} đêm, không thiếu ngày, không thêm ngày ngoài thời lượng.
-- Với các ngày từ 第1天 đến 第${Math.max(trip.days - 1, 1)}天, GPT tự lập lịch trình dựa trên giờ bắt đầu và địa điểm đã chọn riêng cho từng ngày.
+- Với các ngày từ 第1天 đến 第${Math.max(trip.days - 1, 1)}天, GPT tự lập lịch trình dựa trên giờ bắt đầu và địa điểm đã chọn cho từng ngày.
 - Riêng ngày cuối 第${trip.days}天, bắt buộc dùng timeline do tôi nhập; không tự thay đổi thời gian bắt đầu hoặc hoạt động chính.
-- Mỗi ngày chỉ ưu tiên các địa điểm đã chọn cho ngày đó; không tự lấy quá nhiều địa điểm ngoài danh sách ngày đó nếu không cần thiết.
+- Mỗi ngày ưu tiên địa điểm đã chọn cho ngày đó; có thể thêm điểm gần kề hợp lý nếu cần để hoàn thiện buổi sáng/trưa/chiều/tối, nhưng không làm lệch trọng tâm ngày đó.
 - Sắp xếp địa điểm theo tuyến đường hợp lý, tránh di chuyển vòng lại không cần thiết.
 - Tối ưu hành trình theo khu vực địa lý: nhóm các điểm gần nhau trong cùng một buổi hoặc cùng một ngày.
 - Hạn chế tối đa di chuyển xa nhiều lần trong ngày; không đi từ Đà Nẵng sang Hội An rồi quay lại Đà Nẵng nếu không thật sự cần thiết.
