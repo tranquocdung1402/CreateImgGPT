@@ -26,6 +26,7 @@ THƯƠNG HIỆU
 - Địa điểm làm việc: ${get("location")}
 - Tôi sẽ đính kèm một ảnh logo làm ảnh tham chiếu cùng prompt này. Bắt buộc dùng chính ảnh đó làm logo công ty trong poster.
 - ${get("logoRule")}
+- QUY TẮC LOGO QUAN TRỌNG: ảnh tham chiếu có nền đen chỉ để làm nổi bật logo. Phải tách riêng biểu tượng logo màu vàng, xóa hoàn toàn phần nền đen/hình vuông và không hiển thị bất kỳ khung nền đen nào trong poster. Logo vàng phải nằm trực tiếp trên nền thiết kế của poster, tự nhiên như logo có nền trong suốt.
 
 NỘI DUNG BẮT BUỘC
 TIÊU ĐỀ LỚN: TUYỂN DỤNG NHÂN SỰ
