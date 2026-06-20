@@ -51,12 +51,14 @@ YÊU CẦU BỐ CỤC VÀ THIẾT KẾ
 - Phân cấp rõ ràng: vị trí và thu nhập là thông tin nổi bật nhất sau tiêu đề; liên hệ nhận CV là khối CTA nổi bật cuối trang.
 - Có hình minh họa nhẹ về nhân viên dịch vụ/đón tiếp khách quốc tế, không che chữ và không làm poster rối.
 - Không tự ý thêm số điện thoại, địa chỉ, website, QR code, quyền lợi hoặc điều kiện ngoài nội dung nguồn.
+- KHUNG ẢNH LINH HOẠT: không ép toàn bộ nội dung vào một tỷ lệ ảnh cố định hoặc một vùng ngắn. Được phép kéo dài canvas theo chiều dọc, dùng bố cục một cột hoặc chia nhiều vùng theo chiều cao để mọi nội dung có không gian thoải mái.
+- Không bắt buộc dùng lưới 2 cột. Nếu dùng 2 cột khiến chữ nhỏ hoặc chật, phải chuyển sang 1 cột rộng, tăng chiều cao poster hoặc chia thành các khối lớn dễ đọc.
 
 YÊU CẦU CHỮ
 - Typography-first: ưu tiên chữ sắc nét, đúng chính tả và đọc được ngay.
 - Không dùng chữ nhỏ li ti, chữ lỗi dấu, chữ méo, chữ dính hoặc văn bản giả.
-- Tiêu đề tối thiểu 56px; tiêu đề mục 30px+; nội dung tối thiểu 22–26px.
-- Với danh sách dài, tăng chiều cao poster và xuống dòng hợp lý; tuyệt đối không thu nhỏ chữ để nhét nội dung.
+- Tiêu đề tối thiểu 64px; tiêu đề mục 36px+; nội dung tối thiểu 28–32px, khoảng cách dòng thoáng và có lề rộng.
+- Với danh sách dài, tăng chiều cao poster và xuống dòng hợp lý; tuyệt đối không thu nhỏ chữ, nén dòng hoặc ép nội dung vào khung nhỏ để nhét nội dung.
 
 Tạo một poster hoàn chỉnh, cân bằng, sẵn sàng đăng Facebook/Zalo để tuyển dụng.`;
 }
