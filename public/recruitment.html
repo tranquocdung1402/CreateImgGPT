@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt tuyển dụng nhân sự | CreateImgGPT</title>
+    <link rel="stylesheet" href="styles.css?v=20260620-recruitment" />
+  </head>
+  <body>
+    <main class="app-shell route-page"><section class="workspace">
+      <header class="topbar route-topbar">
+        <div><p class="eyebrow">CreateImgGPT</p><h1>Prompt tuyển dụng nhân sự</h1></div>
+        <div class="topbar-actions"><a class="secondary-button button-link" href="index.html">Quay lại prompt brochure</a></div>
+      </header>
+      <div class="layout route-layout">
+        <form class="panel form-panel" id="recruitmentPromptForm">
+          <section class="form-section"><div class="section-title"><span>01</span><h2>Thông tin công ty</h2></div>
+            <div class="grid two">
+              <label>Tên công ty<input name="company" value="CÔNG TY NHẤT ĐỈNH QUỐC TẾ (YIDING INTERNATION)" /></label>
+              <label>Địa điểm làm việc<input name="location" value="HOIANA" /></label>
+              <label>Logo công ty<input name="logo" type="file" accept="image/*" /></label>
+              <label>Kiểu thiết kế<select name="format"><option selected>Poster tuyển dụng dọc, tỷ lệ 4:5</option><option>Poster tuyển dụng dọc, tỷ lệ 9:16</option></select></label>
+            </div>
+            <label>Yêu cầu logo<textarea name="logoRule" rows="3">Dùng chính xác logo tôi cung cấp ở góc trên poster. Không vẽ lại, không biến dạng, không đổi màu logo. Logo rõ nét, kích thước cân đối và không lặp lại.</textarea></label>
+          </section>
+          <section class="form-section"><div class="section-title"><span>02</span><h2>Vị trí & thu nhập</h2></div>
+            <label>Vị trí tuyển dụng<textarea name="positions" rows="4">NHÂN VIÊN ĐÓN TIẾP KHÁCH HÀNG TIẾNG TRUNG: 5 NGƯỜI, CHỈ NỮ&#10;ĐIỀU HÀNH: 5 NAM VÀ NỮ</textarea></label>
+            <div class="grid two"><label>Thu nhập thử việc<input name="probationSalary" value="17 triệu đồng/tháng" /></label><label>Thu nhập chính thức<input name="officialSalary" value="22–25 triệu đồng/tháng, dựa vào năng lực thực tế" /></label></div>
+            <label>Thời gian làm việc<input name="schedule" value="Làm việc theo ca" /></label>
+          </section>
+          <section class="form-section"><div class="section-title"><span>03</span><h2>Nội dung tuyển dụng</h2></div>
+            <label>Mô tả công việc<textarea name="jobDescription" rows="8">• Sử dụng thành thạo máy tính (chủ yếu Excel).&#10;• Đón tiếp khách hàng Trung Quốc tại sân bay theo lịch trình.&#10;• Hỗ trợ khách di chuyển đến khách sạn và các địa điểm liên quan.&#10;• Giao tiếp, hướng dẫn và chăm sóc khách hàng trong suốt quá trình lưu trú.&#10;• Hỗ trợ phiên dịch và xử lý các yêu cầu phát sinh.&#10;• Công việc thường xuyên di chuyển bên ngoài, công ty hỗ trợ phương tiện làm việc.</textarea></label>
+            <label>Yêu cầu<textarea name="requirements" rows="6">• Ngoại hình ưa nhìn, tác phong chuyên nghiệp.&#10;• Tiếng Trung 4 kỹ năng (ưu tiên nghe nói lưu loát).&#10;• Nhanh nhẹn, trách nhiệm, kỹ năng giao tiếp tốt.&#10;• Ưu tiên ứng viên có kinh nghiệm CSKH, lễ tân, phiên dịch hoặc du lịch.</textarea></label>
+            <label>Quyền lợi<textarea name="benefits" rows="5">• Môi trường làm việc quốc tế, sử dụng tiếng Trung thường xuyên.&#10;• Hỗ trợ phương tiện di chuyển phục vụ công việc.&#10;• Đầy đủ BHXH, BHYT, BHTN theo quy định.&#10;• Cơ hội phát triển kỹ năng ngoại ngữ và dịch vụ khách hàng.</textarea></label>
+          </section>
+          <section class="form-section"><div class="section-title"><span>04</span><h2>Nhận CV</h2></div>
+            <div class="grid two"><label>Zalo nhận CV<input name="zalo" value="077 6765801" /></label><label>WeChat nhận CV<input name="wechat" value="077 6765801" /></label></div>
+            <label>Lời kêu gọi ứng tuyển<input name="cta" value="IB TRỰC TIẾP ĐỂ ỨNG TUYỂN NGAY!" /></label>
+          </section>
+        </form>
+        <aside class="panel preview-panel sticky-preview"><div class="preview-header"><div><p class="eyebrow">Recruitment Output</p><h2>Prompt</h2></div></div>
+          <div class="prompt-output route-prompt-output"><div class="prompt-output-header"><label for="recruitmentPromptOutput">Generated Prompt</label><div class="copy-actions"><span id="recruitmentCopyNotice" aria-live="polite"></span><button class="secondary-button compact-button" id="copyRecruitmentPromptButton" type="button">Copy Prompt</button></div></div><textarea id="recruitmentPromptOutput" rows="30" spellcheck="false"></textarea></div>
+        </aside>
+      </div>
+    </section></main>
+    <script src="recruitment.js?v=20260620-recruitment" type="module"></script>
+  </body>
+</html>
