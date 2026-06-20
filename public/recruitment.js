@@ -24,6 +24,7 @@ Tạo một ${get("format")} cao cấp cho thông báo tuyển dụng dưới đ
 THƯƠNG HIỆU
 - Công ty: ${get("company")}
 - Địa điểm làm việc: ${get("location")}
+- Tôi sẽ đính kèm một ảnh logo làm ảnh tham chiếu cùng prompt này. Bắt buộc dùng chính ảnh đó làm logo công ty trong poster.
 - ${get("logoRule")}
 
 NỘI DUNG BẮT BUỘC
